@@ -3,7 +3,7 @@ const https = require('https');
 function get(path) {
   return new Promise((resolve, reject) => {
     const req = https.request({
-      hostname: 'financialmodelingprep.com',
+      hostname: 'finnhub.io',
       path,
       method: 'GET',
       headers: { 'Accept': 'application/json' }
@@ -22,12 +22,25 @@ module.exports = async function(req, res) {
   res.setHeader('Content-Type', 'application/json');
 
   const ticker = (req.query.ticker || '').replace('.AS', '').toUpperCase();
-  const KEY = process.env.FMP_KEY || 'Aob1qs04qBBD9v3rARxjWgSGA9fcZda2';
+  const KEY = process.env.FINNHUB_KEY;
 
   try {
-    const raw = await get(`/api/v4/company-outlook?symbol=${ticker}&apikey=${KEY}`);
-    const json = JSON.parse(raw);
-    return res.status(200).json({ debug: true, ticker, keys: Object.keys(json), sample: JSON.stringify(json).substring(0, 500) });
+    const [metricRaw, quoteRaw] = await Promise.all([
+      get(`/api/v1/stock/metric?symbol=${ticker}&metric=all&token=${KEY}`),
+      get(`/api/v1/quote?symbol=${ticker}&token=${KEY}`)
+    ]);
+
+    const metric = JSON.parse(metricRaw);
+    const m = metric?.metric || {};
+
+    return res.status(200).json({
+      ticker,
+      fwdpe: m['forwardPE'] ?? null,
+      peg: m['priceEarningsTTM'] ?? null,
+      roe: m['roeTTM'] != null ? Math.round(m['roeTTM']) : null,
+      margin: m['operatingMarginTTM'] != null ? Math.round(m['operatingMarginTTM']) : null,
+      epsy: m['epsGrowthTTMYoy'] != null ? Math.round(m['epsGrowthTTMYoy']) : null,
+    });
   } catch(err) {
     return res.status(500).json({ error: err.message });
   }
