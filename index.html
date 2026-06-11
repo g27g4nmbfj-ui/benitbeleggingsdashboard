@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Familie Bénit Beleggingsdashboard</title>
+<style>
+:root{
+  --teal:#00CEC8;--tl:#E0F9F8;--td:#007A76;
+  --creme:#FCEFC3;--zalm:#FF9C5F;--zl:#FFF0E8;--zd:#C85A1A;
+  --rood:#EB4203;--rl:#FDE8E0;--rd:#A32D00;
+  --win:#1D9E75;--wl:#E1F5EE;
+  --donker:#0D1117;--tekst:#1A1A1A;--muted:#6B7280;
+  --bg:#FFFFFF;--bg2:#F9FAFB;--rand:#E5E7EB;--rand2:#D1D5DB;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg2);color:var(--tekst);font-size:13px;line-height:1.5;}
+.hdr{background:var(--donker);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;}
+.htitle{font-size:18px;font-weight:600;color:white;}.htitle span{color:var(--teal);}
+.hsub{font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;}
+.hright{text-align:right;}
+.rbtn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:white;font-size:12px;cursor:pointer;transition:background 0.15s;}
+.rbtn:hover{background:rgba(255,255,255,0.2);}
+.rbtn:disabled{opacity:0.5;cursor:not-allowed;}
+.rtime{font-size:10px;color:rgba(255,255,255,0.35);margin-top:4px;}
+.spin{display:inline-block;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.shell{max-width:1300px;margin:0 auto;padding:20px 20px 40px;}
+.tabs{display:flex;gap:2px;background:white;border:1px solid var(--rand);border-radius:10px;padding:4px;margin-bottom:18px;width:fit-content;flex-wrap:wrap;}
+.tab{padding:8px 18px;font-size:12px;font-weight:500;border:none;background:none;cursor:pointer;color:var(--muted);border-radius:7px;transition:all 0.15s;}
+.tab.active{background:var(--donker);color:white;}
+.tab:hover:not(.active){background:var(--bg2);}
+.pagina{display:none;}.pagina.active{display:block;}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.metric{background:white;border:1px solid var(--rand);border-radius:10px;padding:16px 18px;}
+.mlbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px;}
+.mval{font-size:22px;font-weight:600;color:var(--tekst);}
+.mval.win{color:var(--win);}.mval.ver{color:var(--rood);}
+.twrap{background:white;border:1px solid var(--rand);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.thdr{padding:14px 18px;border-bottom:1px solid var(--rand);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.ttitel{font-size:13px;font-weight:600;}
+.tscroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+th{padding:9px 13px;text-align:left;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;border-bottom:1px solid var(--rand);background:var(--bg2);cursor:pointer;user-select:none;white-space:nowrap;}
+th:hover{color:var(--tekst);}
+td{padding:10px 13px;border-bottom:1px solid var(--rand);vertical-align:middle;white-space:nowrap;}
+tr:last-child td{border-bottom:none;}tr:hover td{background:#FAFBFC;}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;}
+.bg{background:var(--wl);color:var(--win);}.br{background:var(--rl);color:var(--rd);}
+.bo{background:var(--zl);color:var(--zd);}.bt{background:var(--tl);color:var(--td);}
+.bk{background:var(--bg2);color:var(--muted);border:1px solid var(--rand);}
+.ccel{display:flex;align-items:center;gap:6px;}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dok{background:var(--win);}.dwn{background:var(--zalm);}.dbd{background:var(--rood);}
+.delta{font-size:10px;padding:1px 5px;border-radius:4px;font-weight:500;}
+.dok2{background:var(--wl);color:var(--win);}.dwn2{background:var(--zl);color:var(--zd);}.dbd2{background:var(--rl);color:var(--rd);}
+.fbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.fbar input,.fbar select{padding:6px 10px;font-size:12px;border:1px solid var(--rand2);border-radius:7px;background:white;color:var(--tekst);}
+.fbar input:focus,.fbar select:focus{outline:none;border-color:var(--teal);}
+.ftag{padding:4px 12px;font-size:12px;border:1px solid var(--rand2);border-radius:20px;background:none;cursor:pointer;color:var(--muted);}
+.ftag.active{background:var(--donker);color:white;border-color:var(--donker);}
+.ibar{padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:14px;}
+.iteal{background:var(--tl);color:var(--td);}.izalm{background:var(--zl);color:var(--zd);}
+.lcel{text-align:center;padding:32px!important;color:var(--muted);}
+.tkgr{font-weight:600;font-size:13px;}.tkkl{font-size:11px;color:var(--muted);}
+/* TRANSACTIES */
+.tr-form{background:white;border:1px solid var(--rand);border-radius:10px;padding:20px;margin-bottom:16px;}
+.tr-form h3{font-size:13px;font-weight:600;margin-bottom:14px;color:var(--tekst);}
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px;}
+.form-row label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;}
+.form-row input,.form-row select{width:100%;padding:8px 10px;border:1px solid var(--rand2);border-radius:7px;font-size:12px;background:white;color:var(--tekst);}
+.form-row input:focus,.form-row select:focus{outline:none;border-color:var(--teal);}
+.btn-add{padding:9px 20px;background:var(--teal);border:none;border-radius:8px;color:white;font-size:13px;font-weight:500;cursor:pointer;}
+.btn-add:hover{background:var(--td);}
+.btn-del{padding:3px 8px;background:var(--rl);border:none;border-radius:5px;color:var(--rd);font-size:11px;cursor:pointer;}
+.btn-del:hover{background:var(--rood);color:white;}
+/* REGELS */
+.rcrd{background:white;border:1px solid var(--rand);border-radius:10px;padding:16px 20px;margin-bottom:12px;}
+.rcrd.goud{background:var(--donker);border-color:var(--donker);}
+.rtitel{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.dcol{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;}
+.mini{background:white;border:1px solid var(--rand);border-radius:10px;padding:14px 16px;}
+.mit{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:7px;}
+.mii{font-size:12px;color:var(--muted);padding:3px 0;display:flex;gap:6px;}
+.qbox{background:white;border:1px solid var(--rand);border-left:3px solid var(--teal);border-radius:0 10px 10px 0;padding:13px 16px;margin-bottom:8px;}
+.qt{font-size:13px;font-style:italic;color:var(--muted);margin-bottom:4px;}
+.qa{font-size:11px;font-weight:600;color:var(--td);}
+.ctbl{width:100%;border-collapse:collapse;font-size:13px;}
+.ctbl td{padding:8px 12px;border-bottom:1px solid var(--rand);}
+.ctbl tr:nth-child(even) td{background:var(--bg2);}
+.ctbl tr:last-child td{border-bottom:none;}
+/* API KEY */
+.setup-rcrd{background:white;border:1px solid var(--rand);border-radius:10px;padding:20px;margin-bottom:14px;}
+.setup-rcrd h3{font-size:13px;font-weight:600;margin-bottom:8px;}
+.setup-rcrd p{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.7;}
+.key-row{display:flex;gap:8px;margin-bottom:10px;}
+.key-row input{flex:1;padding:10px 14px;border:1px solid var(--rand2);border-radius:8px;font-size:12px;font-family:monospace;}
+.key-row input:focus{outline:none;border-color:var(--teal);}
+.key-btn{padding:10px 20px;background:var(--teal);border:none;border-radius:8px;color:white;font-size:13px;font-weight:500;cursor:pointer;}
+.key-btn:hover{background:var(--td);}
+@media(max-width:768px){.metrics{grid-template-columns:repeat(2,1fr);}.rgrid{grid-template-columns:1fr;}.dcol{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <div class="htitle"><span>Familie Bénit</span> Beleggingsdashboard</div>
+    <div class="hsub">Portfolio · Watchlist · Transacties · Regels — P.D. Bénit</div>
+  </div>
+  <div class="hright">
+    <button class="rbtn" id="rbtn" onclick="refreshData()">
+      <span id="rico">↻</span> Vernieuwen
+    </button>
+    <div class="rtime" id="rtime">Nog niet geladen</div>
+  </div>
+</div>
+
+<div class="shell">
+<div class="tabs">
+  <button class="tab active" onclick="toonP('portfolio',this)">📊 Portfolio</button>
+  <button class="tab" onclick="toonP('watchlist',this)">⭐ Watchlist</button>
+  <button class="tab" onclick="toonP('transacties',this)">📝 Transacties</button>
+  <button class="tab" onclick="toonP('regels',this)">📋 Regels</button>
+  
+</div>
+
+<!-- PORTFOLIO -->
+<div id="portfolio" class="pagina active">
+  <div class="metrics">
+    <div class="metric"><div class="mlbl">Geïnvesteerd</div><div class="mval" id="m-inv">€27.208</div></div>
+    <div class="metric"><div class="mlbl">Huidige waarde</div><div class="mval" id="m-waarde">—</div></div>
+    <div class="metric"><div class="mlbl">Resultaat</div><div class="mval" id="m-res">—</div></div>
+    <div class="metric"><div class="mlbl">Rendement</div><div class="mval" id="m-pct">—</div></div>
+  </div>
+  <div class="ibar iteal">ℹ️ Criteria: Fwd P/E &lt;25 · PEG &lt;1.5 · ROE &gt;20% · Op.Margin &gt;15% — delta toont hoeveel een positie afwijkt van de grens</div>
+  <div class="twrap">
+    <div class="thdr">
+      <div class="ttitel">Posities & criteria check</div>
+      <div style="font-size:11px;color:var(--muted)" id="pts">Klik Vernieuwen voor actuele data</div>
+    </div>
+    <div class="tscroll">
+      <table>
+        <thead><tr>
+          <th>Aandeel</th><th>Waarde</th><th>GAK</th>
+          <th onclick="sP('res')">Resultaat ↕</th>
+          <th>Gewicht</th>
+          <th onclick="sP('fwdpe')">Fwd P/E ↕</th>
+          <th onclick="sP('peg')">PEG ↕</th>
+          <th onclick="sP('roe')">ROE ↕</th>
+          <th onclick="sP('margin')">Op.Margin ↕</th>
+          <th>Status</th><th>Actie</th>
+        </tr></thead>
+        <tbody id="ptbody"><tr><td colspan="11" class="lcel">⏳ Data laden...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- WATCHLIST -->
+<div id="watchlist" class="pagina">
+  <div class="ibar izalm">⭐ Gesorteerd op PEG laag → hoog. Klik kolomkop om te hersorteren.</div>
+  <div class="twrap" style="margin-bottom:10px;padding:14px 18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+    <input type="text" id="w-nieuw-ticker" placeholder="Ticker (bijv. AAPL)" style="padding:8px 10px;border:1px solid var(--rand2);border-radius:7px;font-size:13px;width:150px;text-transform:uppercase">
+    <input type="text" id="w-nieuw-naam" placeholder="Naam (bijv. Apple)" style="padding:8px 10px;border:1px solid var(--rand2);border-radius:7px;font-size:13px;width:180px">
+    <select id="w-nieuw-sector" style="padding:8px 10px;border:1px solid var(--rand2);border-radius:7px;font-size:13px;">
+      <option value="Technology">Technology</option>
+      <option value="Financial">Financial</option>
+      <option value="Communication">Communication</option>
+      <option value="Consumer">Consumer</option>
+      <option value="Industrials">Industrials</option>
+    </select>
+    <select id="w-nieuw-status" style="padding:8px 10px;border:1px solid var(--rand2);border-radius:7px;font-size:13px;">
+      <option value="kandidaat">Kandidaat</option>
+      <option value="portfolio">In portfolio</option>
+      <option value="koop">Volgende koop</option>
+    </select>
+    <button onclick="voegWatchToe()" style="padding:8px 16px;background:var(--teal);border:none;border-radius:7px;color:white;font-size:13px;font-weight:500;cursor:pointer;">+ Toevoegen</button>
+  </div>
+  <div class="twrap">
+    <div class="thdr">
+      <div class="ttitel">Kandidaten & portfolio posities</div>
+      <div class="fbar">
+        <input type="text" id="wzoek" placeholder="Zoeken..." oninput="rW()">
+        <select id="wsect" onchange="rW()">
+          <option value="">Alle sectoren</option>
+          <option value="Technology">Technology</option>
+          <option value="Financial">Financial</option>
+          <option value="Communication">Communication</option>
+          <option value="Consumer">Consumer</option>
+        </select>
+        <button class="ftag active" onclick="sF('alle',this)">Alle</button>
+        <button class="ftag" onclick="sF('portfolio',this)">In portfolio</button>
+        <button class="ftag" onclick="sF('kandidaat',this)">Kandidaten</button>
+      </div>
+    </div>
+    <div class="tscroll">
+      <table>
+        <thead><tr>
+          <th onclick="sW('ticker')">Ticker ↕</th>
+          <th onclick="sW('naam')">Naam ↕</th>
+          <th onclick="sW('cap_n')">Market Cap ↕</th>
+          <th onclick="sW('fwdpe')">Fwd P/E ↕</th>
+          <th onclick="sW('peg')">PEG ↕</th>
+          <th onclick="sW('roe')">ROE ↕</th>
+          <th onclick="sW('margin')">Op.Margin ↕</th>
+          <th onclick="sW('epsy')">EPS dit jaar ↕</th>
+          <th>Criteria</th><th>Status</th><th></th>
+        </tr></thead>
+        <tbody id="wtbody"><tr><td colspan="11" class="lcel">⏳ Data laden...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TRANSACTIES -->
+<div id="transacties" class="pagina">
+  <div class="tr-form">
+    <h3>Transactie toevoegen</h3>
+    <div class="form-row">
+      <div>
+        <label>Type</label>
+        <select id="tr-type">
+          <option value="koop">Aankoop aandeel</option>
+          <option value="verkoop">Verkoop aandeel</option>
+          <option value="storting">Storting</option>
+          <option value="onttrekking">Onttrekking</option>
+          <option value="dividend">Dividend ontvangen</option>
+        </select>
+      </div>
+      <div>
+        <label>Datum</label>
+        <input type="date" id="tr-datum">
+      </div>
+      <div>
+        <label>Ticker (optioneel)</label>
+        <input type="text" id="tr-ticker" placeholder="bijv. NVDA">
+      </div>
+      <div>
+        <label>Aantal aandelen</label>
+        <input type="number" id="tr-aantal" placeholder="bijv. 16" step="0.01">
+      </div>
+      <div>
+        <label>Prijs per aandeel</label>
+        <input type="number" id="tr-prijs" placeholder="bijv. 207.49" step="0.01">
+      </div>
+      <div>
+        <label>Bedrag (EUR)</label>
+        <input type="number" id="tr-bedrag" placeholder="bijv. 3000" step="0.01">
+      </div>
+      <div>
+        <label>Notitie</label>
+        <input type="text" id="tr-notitie" placeholder="Optionele notitie...">
+      </div>
+    </div>
+    <button class="btn-add" onclick="voegTransactieToe()">+ Toevoegen</button>
+  </div>
+
+  <div class="twrap">
+    <div class="thdr">
+      <div class="ttitel">Transactiehistorie</div>
+      <div style="display:flex;gap:8px;">
+        <select id="tr-filter" onchange="rTr()">
+          <option value="">Alle types</option>
+          <option value="koop">Aankopen</option>
+          <option value="verkoop">Verkopen</option>
+          <option value="storting">Stortingen</option>
+          <option value="onttrekking">Onttrekkingen</option>
+          <option value="dividend">Dividend</option>
+        </select>
+      </div>
+    </div>
+    <div class="tscroll">
+      <table>
+        <thead><tr>
+          <th>Datum</th><th>Type</th><th>Ticker</th><th>Aantal</th><th>Prijs</th><th>Bedrag</th><th>Notitie</th><th></th>
+        </tr></thead>
+        <tbody id="trbody"><tr><td colspan="8" class="lcel">Nog geen transacties. Voeg er een toe hierboven.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="twrap">
+    <div class="thdr"><div class="ttitel">Samenvatting</div></div>
+    <div style="padding:16px 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;" id="tr-summary">
+    </div>
+  </div>
+</div>
+
+<!-- REGELS -->
+<div id="regels" class="pagina">
+  <div class="rcrd goud" style="margin-bottom:14px;">
+    <div class="rtitel" style="color:var(--teal);">De gouden regel</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.9);line-height:1.7;">Koop alleen bedrijven waar je 100% zeker van bent dat je ze <strong style="color:white;">3-5 jaar</strong> vasthoudt. Als je twijfelt bij een daling van 30% — koop dan niet.</div>
+  </div>
+  <div class="rgrid">
+    <div class="rcrd">
+      <div class="rtitel" style="color:var(--td);">Verplichte criteria</div>
+      <table class="ctbl">
+        <tr><td style="color:var(--muted)">Market Cap</td><td><strong>Min. $10 miljard</strong></td></tr>
+        <tr><td style="color:var(--muted)">Forward P/E</td><td><strong>Max. 25</strong></td></tr>
+        <tr><td style="color:var(--muted)">PEG Ratio</td><td><strong>Max. 2</strong> (zo laag mogelijk)</td></tr>
+        <tr><td style="color:var(--muted)">ROIC</td><td><strong>Min. 15%</strong></td></tr>
+        <tr><td style="color:var(--muted)">Operating Margin</td><td><strong>Min. 15%</strong></td></tr>
+        <tr><td style="color:var(--muted)">Return on Equity</td><td><strong>Min. 20%</strong></td></tr>
+        <tr><td style="color:var(--muted)">Moat</td><td>Waarom gaan klanten niet weg?</td></tr>
+        <tr><td style="color:var(--muted)">Vrije kasstroom</td><td>Positief en groeiend</td></tr>
+      </table>
+    </div>
+    <div class="rcrd">
+      <div class="rtitel" style="color:var(--zd);">Finviz screener</div>
+      <div style="font-size:10px;font-family:monospace;background:var(--bg2);padding:10px;border-radius:7px;line-height:1.8;word-break:break-all;color:var(--muted);margin-bottom:12px;">finviz.com/screener?v=121&f=cap_largeover,fa_eps5years_pos,fa_epsqoq_o15,fa_epsyoy_o15,fa_fpe_u25,fa_pe_u50,fa_peg_u2,fa_roi_o15&ft=4&o=-marketcap</div>
+      <div class="rtitel" style="color:var(--zd);">Maandelijkse stappen</div>
+      <div class="mii" style="padding:4px 0;font-size:12px;"><span style="color:var(--zalm);font-weight:700;">1.</span> Sorteer op PEG laag → hoog</div>
+      <div class="mii" style="padding:4px 0;font-size:12px;"><span style="color:var(--zalm);font-weight:700;">2.</span> Top 20, goud & biotech negeren</div>
+      <div class="mii" style="padding:4px 0;font-size:12px;"><span style="color:var(--zalm);font-weight:700;">3.</span> Sectordip: tijdelijk of structureel?</div>
+      <div class="mii" style="padding:4px 0;font-size:12px;"><span style="color:var(--zalm);font-weight:700;">4.</span> FCF, moat, schuld analyseren</div>
+      <div class="mii" style="padding:4px 0;font-size:12px;"><span style="color:var(--zalm);font-weight:700;">5.</span> Kopen, ruilen of niks doen</div>
+    </div>
+  </div>
+  <div class="dcol">
+    <div class="mini">
+      <div class="mit" style="color:var(--td);">Kopen</div>
+      <div class="mii"><span style="color:var(--win);font-weight:700;">✓</span> Alle criteria kloppen</div>
+      <div class="mii"><span style="color:var(--win);font-weight:700;">✓</span> Daling &gt;20%: bijkopen</div>
+      <div class="mii"><span style="color:var(--win);font-weight:700;">✓</span> Sectordip = kans</div>
+      <div class="mii"><span style="color:var(--rood);font-weight:700;">✗</span> Niet op gevoel of hype</div>
+      <div class="mii"><span style="color:var(--rood);font-weight:700;">✗</span> Niet als je niet 3jr houdt</div>
+    </div>
+    <div class="mini">
+      <div class="mit" style="color:var(--zd);">Vasthouden</div>
+      <div class="mii"><span style="color:var(--win);font-weight:700;">✓</span> Koersdaling geen reden</div>
+      <div class="mii"><span style="color:var(--win);font-weight:700;">✓</span> Nieuws volgen mag</div>
+      <div class="mii"><span style="color:var(--win);font-weight:700;">✓</span> Slaap er een nacht over</div>
+      <div class="mii"><span style="color:var(--rood);font-weight:700;">✗</span> Niet bij "genoeg gestegen"</div>
+      <div class="mii"><span style="color:var(--rood);font-weight:700;">✗</span> Niet bij slecht nieuws als ok</div>
+    </div>
+    <div class="mini">
+      <div class="mit" style="color:var(--rd);">Verkopen — alleen als</div>
+      <div class="mii"><span style="color:var(--rood);font-weight:700;">1.</span> Fundamenten verslechteren</div>
+      <div class="mii"><span style="color:var(--rood);font-weight:700;">2.</span> Betere kans beschikbaar</div>
+      <div class="mii"><span style="color:var(--rood);font-weight:700;">3.</span> Portfolio vol + betere naam</div>
+      <div class="mii"><span style="color:var(--rood);font-weight:700;">4.</span> Originele reden weg</div>
+      <div class="mii" style="margin-top:6px;padding-top:6px;border-top:1px solid var(--rand);font-size:11px;"><strong>Slaaptest:</strong> morgen nog? Nee = emotie.</div>
+    </div>
+  </div>
+  <div class="rgrid">
+    <div>
+      <div class="qbox"><div class="qt">"De beurs is een apparaat om geld over te hevelen van de ongeduldigde naar de geduldige."</div><div class="qa">— Warren Buffett</div></div>
+      <div class="qbox" style="border-left-color:var(--zalm);"><div class="qt">"Winst nemen is geen reden. Een beter bedrijf vinden wel."</div><div class="qa" style="color:var(--zd);">— Onze regel</div></div>
+    </div>
+    <div class="rcrd">
+      <div class="rtitel" style="color:var(--muted);">Dip beoordeling</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--win);margin-bottom:6px;">TIJDELIJK = KANS</div>
+          <div class="mii"><span style="color:var(--win);">✓</span> CFO/CEO vertrekt</div>
+          <div class="mii"><span style="color:var(--win);">✓</span> Slecht kwartaal eenmalig</div>
+          <div class="mii"><span style="color:var(--win);">✓</span> Macro-angst hele sector</div>
+          <div class="mii"><span style="color:var(--win);">✓</span> Sectordip door sentiment</div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--rood);margin-bottom:6px;">STRUCTUREEL = WEG</div>
+          <div class="mii"><span style="color:var(--rood);">✗</span> Concurrent pakt markt</div>
+          <div class="mii"><span style="color:var(--rood);">✗</span> Omzet daalt meerdere kwtln</div>
+          <div class="mii"><span style="color:var(--rood);">✗</span> Moat verdwijnt</div>
+          <div class="mii"><span style="color:var(--rood);">✗</span> Klanten lopen structureel weg</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="padding:10px;background:var(--bg2);border-radius:8px;font-size:11px;color:var(--muted);text-align:center;">
+    Bijgewerkt: 10 juni 2026 · Max posities: 10-12 · Volgende actie: na 1 juli 2026 → TSM
+  </div>
+</div>
+
+<!-- API KEY -->
+<div id="instellingen" class="pagina">
+  <div style="max-width:580px;">
+    <div class="setup-rcrd">
+      <h3>RapidAPI Key instellen</h3>
+      <p>Vul je RapidAPI key in. Die wordt veilig opgeslagen in je browser en alleen gebruikt voor Yahoo Finance data. Verlaat nooit deze pagina.</p>
+      <div class="key-row">
+        <input type="password" id="api-key-input" placeholder="Plak hier je RapidAPI key...">
+        <button class="key-btn" onclick="slaKeyOp()">Opslaan</button>
+      </div>
+      <div id="key-status" style="font-size:12px;color:var(--muted);"></div>
+    </div>
+    <div class="setup-rcrd">
+      <h3>Stappen</h3>
+      <div class="mii" style="font-size:12px;padding:5px 0;border-bottom:1px solid var(--rand);"><span style="color:var(--teal);font-weight:700;">1.</span> Ga naar rapidapi.com → Account → Applications</div>
+      <div class="mii" style="font-size:12px;padding:5px 0;border-bottom:1px solid var(--rand);"><span style="color:var(--teal);font-weight:700;">2.</span> Kopieer je RapidAPI key (regenerate als je hem al gedeeld hebt)</div>
+      <div class="mii" style="font-size:12px;padding:5px 0;border-bottom:1px solid var(--rand);"><span style="color:var(--teal);font-weight:700;">3.</span> Plak hem hierboven en klik Opslaan</div>
+      <div class="mii" style="font-size:12px;padding:5px 0;"><span style="color:var(--teal);font-weight:700;">4.</span> Ga naar Portfolio of Watchlist en klik Vernieuwen</div>
+      <div style="margin-top:12px;padding:10px;background:var(--tl);border-radius:7px;font-size:12px;color:var(--td);">
+        ✓ Gratis tier: 500 requests/maand — ruim voldoende<br>
+        ✓ Key opgeslagen in browser, nooit gedeeld
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const RAPIDAPI_HOST='yahoo-finance15.p.rapidapi.com';
+const RAPIDAPI_KEY='2f209c7873msh5b4467ed3d0edccp14592cjsnb10bcb7227a4';
+
+// Portfolio basisdata
+const PB=[
+  {ticker:'MSFT',naam:'Microsoft',waarde:6640,inv:7338,gak:450.38,gakTxt:'$450,38',gew:23.65,at:'lock'},
+  {ticker:'ADYEN.AS',naam:'Adyen NV',waarde:4939,inv:5924,gak:987.30,gakTxt:'€987,30',gew:17.59,at:'lock'},
+  {ticker:'META',naam:'Meta Platforms',waarde:4558,inv:4938,gak:628.50,gakTxt:'$628,50',gew:16.24,at:'lock'},
+  {ticker:'AMZN',naam:'Amazon',waarde:3596,inv:3145,gak:214.70,gakTxt:'$214,70',gew:12.81,at:'lock'},
+  {ticker:'NVDA',naam:'Nvidia',waarde:2886,inv:2887,gak:207.49,gakTxt:'$207,49',gew:10.28,at:'lock'},
+  {ticker:'UBER',naam:'Uber',waarde:2622,inv:2989,gak:81.55,gakTxt:'$81,55',gew:9.34,at:'watch'},
+  {ticker:'SPGI',naam:'S&P Global',waarde:2576,inv:2910,gak:482.76,gakTxt:'$482,76',gew:9.18,at:'swap'},
+];
+
+const WB_DEFAULT=[
+  {ticker:'NVDA',naam:'Nvidia',cap:'$5.038B',cap_n:5038,sector:'Technology',status:'portfolio'},
+  {ticker:'TSM',naam:'TSMC',cap:'$2.219B',cap_n:2219,sector:'Technology',status:'koop'},
+  {ticker:'META',naam:'Meta Platforms',cap:'$1.484B',cap_n:1484,sector:'Communication',status:'portfolio'},
+  {ticker:'MSFT',naam:'Microsoft',cap:'$2.997B',cap_n:2997,sector:'Technology',status:'portfolio'},
+  {ticker:'AMZN',naam:'Amazon',cap:'$3.596B',cap_n:3596,sector:'Consumer',status:'portfolio'},
+  {ticker:'GOOGL',naam:'Alphabet',cap:'$4.403B',cap_n:4403,sector:'Communication',status:'kandidaat'},
+  {ticker:'NFLX',naam:'Netflix',cap:'$342B',cap_n:342,sector:'Communication',status:'kandidaat'},
+  {ticker:'MA',naam:'Mastercard',cap:'$438B',cap_n:438,sector:'Financial',status:'kandidaat'},
+  {ticker:'ADYEN.AS',naam:'Adyen NV',cap:'$26B',cap_n:26,sector:'Technology',status:'portfolio'},
+  {ticker:'SPGI',naam:'S&P Global',cap:'$83B',cap_n:83,sector:'Financial',status:'portfolio'},
+];
+function laadWB(){
+  const opgeslagen=localStorage.getItem('watchlist_v1');
+  if(opgeslagen){try{return JSON.parse(opgeslagen);}catch(e){}}
+  return WB_DEFAULT;
+}
+function slaWBOp(wb){localStorage.setItem('watchlist_v1',JSON.stringify(wb));}
+let WB=laadWB();
+
+let pData=[],wData=[],transacties=[];
+let pSortCol=null,pAsc=true,wSortCol='peg',wAsc=true,actF='alle';
+
+// ─── HELPERS ───
+function getKey(){return localStorage.getItem('rapidapi_key')||RAPIDAPI_KEY;}
+function eur(n){return'€'+Math.round(n).toLocaleString('nl-NL');}
+function eurD(n){return(n>=0?'+€':'-€')+Math.abs(Math.round(n)).toLocaleString('nl-NL');}
+function pct(n){return(n>=0?'+':'')+n.toFixed(2)+'%';}
+function fv(v){return v!=null&&v!==undefined?v:'—';}
+function gr(v){return v!=null?`<span style="color:var(--win)">+${v}%</span>`:'—';}
+
+
+function dotC(val,grens,hoger){return'';}  // niet meer gebruikt
+
+function kleurCel(val, grens, hoger) {
+  if(val==null) return '<span style="color:var(--muted)">—</span>';
+  const d = hoger ? val - grens : grens - val; // positief = goed
+  const pct = Math.min(Math.abs(d) / grens * 100, 100);
+  if(d >= 0) {
+    // Goed: groen, hoe verder onder/boven grens hoe donkerder groen
+    const g = Math.round(120 + pct * 0.8);
+    return `<span style="color:rgb(0,${g},80);font-weight:600">${val}</span>`;
+  } else {
+    // Slecht: oranje tot rood, hoe verder hoe roder
+    const r = Math.round(200 + pct * 0.55);
+    const g = Math.round(120 - pct * 1.2);
+    return `<span style="color:rgb(${r},${Math.max(g,0)},0);font-weight:600">${val}</span>`;
+  }
+}
+
+function dltKleur(val, grens, hoger) {
+  if(val==null) return '';
+  const d = hoger ? val - grens : grens - val;
+  const pct = Math.min(Math.abs(d) / grens * 100, 100);
+  let kleur, teken;
+  if(d >= 0) {
+    const g = Math.round(120 + pct * 0.8);
+    kleur = `rgb(0,${g},80)`;
+    teken = hoger ? '+' : '-';
+  } else {
+    const r = Math.round(200 + pct * 0.55);
+    const g = Math.round(120 - pct * 1.2);
+    kleur = `rgb(${r},${Math.max(g,0)},0)`;
+    teken = hoger ? '-' : '+';
+  }
+  return `<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:rgba(0,0,0,0.06);color:${kleur};font-weight:500">${teken}${Math.abs(d).toFixed(1)}</span>`;
+}
+
+// ─── API ───
+async function haalYahoo(ticker){
+  try{
+    const t=ticker.replace('.AS','');
+    const r=await fetch(`/api/stock?ticker=${encodeURIComponent(t)}`);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    return await r.json();
+  }catch(e){
+    console.warn('Fout voor',ticker,e.message);
+    return{fwdpe:null,peg:null,roe:null,margin:null,epsy:null};
+  }
+}
+
+async function refreshData(){
+  const key=getKey();
+  if(!key){alert('Stel eerst je RapidAPI key in via "API Key"!');return;}
+  const btn=document.getElementById('rbtn');
+  const ico=document.getElementById('rico');
+  btn.disabled=true;
+  ico.innerHTML='<span class="spin">↻</span>';
+  document.getElementById('ptbody').innerHTML='<tr><td colspan="11" class="lcel"><span class="spin">↻</span> Data ophalen...</td></tr>';
+  document.getElementById('wtbody').innerHTML='<tr><td colspan="11" class="lcel"><span class="spin">↻</span> Data ophalen...</td></tr>';
+
+  const alle=[...new Set([...PB.map(p=>p.ticker),...WB.map(w=>w.ticker)])];
+  const map={};
+  let succes=0;
+  for(const t of alle){
+    map[t]=await haalYahoo(t);
+    if(map[t].fwdpe!=null||map[t].peg!=null) succes++;
+    await new Promise(r=>setTimeout(r,300));
+  }
+
+  pData=PB.map(p=>({...p,...map[p.ticker],res:((p.waarde-p.inv)/p.inv)*100}));
+  wData=WB.map(w=>({...w,...map[w.ticker]}));
+
+  const nu=new Date().toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('rtime').textContent=`Yahoo Finance — ${nu}`;
+  document.getElementById('pts').textContent=`${succes}/${alle.length} tickers geladen — ${nu}`;
+
+  updateMetrics();rP();rW();
+  btn.disabled=false;ico.textContent='↻';
+}
+
+function updateMetrics(){
+  const totInv=PB.reduce((s,p)=>s+p.inv,0);
+  const totWrd=PB.reduce((s,p)=>s+p.waarde,0);
+  const res=totWrd-totInv;
+  const pctV=(res/totInv)*100;
+  document.getElementById('m-inv').textContent=eur(totInv);
+  document.getElementById('m-waarde').textContent=eur(totWrd);
+  const rEl=document.getElementById('m-res');
+  rEl.textContent=eurD(res);
+  rEl.className='mval '+(res>=0?'win':'ver');
+  const pEl=document.getElementById('m-pct');
+  pEl.textContent=pct(pctV);
+  pEl.className='mval '+(pctV>=0?'win':'ver');
+}
+
+// ─── PORTFOLIO RENDER ───
+function rP(){
+  let rows=[...pData];
+  if(pSortCol)rows.sort((a,b)=>pAsc?(a[pSortCol]??0)-(b[pSortCol]??0):(b[pSortCol]??0)-(a[pSortCol]??0));
+  document.getElementById('ptbody').innerHTML=rows.map(p=>{
+    const res=p.waarde-p.inv;
+    const rc=res>=0?'color:var(--win);font-weight:600':'color:var(--rood)';
+    const actie=p.at==='lock'?'<span class="badge bt">🔒 Houd</span>':p.at==='watch'?'<span class="badge bo">👀 Volgen</span>':'<span class="badge br">⏳ → TSM</span>';
+    const ok=p.fwdpe!=null&&p.fwdpe<=25&&p.peg!=null&&p.peg<=1.5&&p.roe!=null&&p.roe>=20&&p.margin!=null&&p.margin>=15;
+    const halfOk=!ok&&(p.fwdpe!=null||p.peg!=null||p.roe!=null||p.margin!=null);
+    const st=ok?'<span class="badge bg">✓ OK</span>':halfOk?'<span class="badge bo">⚠ Let op</span>':'<span class="badge bk">— Laden</span>';
+    const trailingPE = p.trailingpe != null ? `<span style="font-size:10px;color:var(--muted)">(P/E: ${p.trailingpe.toFixed(1)})</span>` : '';
+    return`<tr>
+      <td><div class="tkgr">${p.ticker.replace('.AS','')}</div><div class="tkkl">${p.naam}</div></td>
+      <td>${eur(p.waarde)}</td>
+      <td style="color:var(--muted);font-size:11px">${p.gakTxt}</td>
+      <td style="${rc}">${pct(p.res)}<br><span style="font-size:11px;font-weight:400">${eurD(res)}</span></td>
+      <td>${p.gew.toFixed(1)}%</td>
+      <td>${kleurCel(p.fwdpe!=null?parseFloat(p.fwdpe.toFixed(2)):null,25,false)} ${dltKleur(p.fwdpe,25,false)} ${trailingPE}</td>
+      <td>${kleurCel(p.peg!=null?parseFloat(p.peg.toFixed(2)):null,1.5,false)} ${dltKleur(p.peg,1.5,false)}</td>
+      <td>${kleurCel(p.roe!=null?p.roe+'%':null,20,true)} ${dltKleur(p.roe,20,true)}</td>
+      <td>${kleurCel(p.margin!=null?p.margin+'%':null,15,true)} ${dltKleur(p.margin,15,true)}</td>
+      <td>${st}</td><td>${actie}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── WATCHLIST RENDER ───
+function rW(){
+  const z=document.getElementById('wzoek').value.toLowerCase();
+  const s=document.getElementById('wsect').value;
+  let rows=[...wData];
+  if(z)rows=rows.filter(r=>r.ticker.toLowerCase().replace('.as','').includes(z)||r.naam.toLowerCase().includes(z));
+  if(s)rows=rows.filter(r=>r.sector===s);
+  if(actF==='portfolio')rows=rows.filter(r=>r.status==='portfolio');
+  if(actF==='kandidaat')rows=rows.filter(r=>r.status!=='portfolio');
+  rows.sort((a,b)=>{
+    const av=a[wSortCol]??9999,bv=b[wSortCol]??9999;
+    if(typeof av==='string')return wAsc?av.localeCompare(bv):bv.localeCompare(av);
+    return wAsc?av-bv:bv-av;
+  });
+  if(!rows.length){document.getElementById('wtbody').innerHTML='<tr><td colspan="11" class="lcel">Geen resultaten</td></tr>';return;}
+  document.getElementById('wtbody').innerHTML=rows.map(w=>{
+    const cb=[[w.fwdpe<=25,'P/E'],[w.peg<=1.5,'PEG'],[w.roe>=20,'ROE'],[w.margin>=15,'Mg']].map(([ok,l])=>`<span class="badge ${ok?'bg':'br'}" style="padding:1px 5px;font-size:10px">${l}</span>`).join(' ');
+    const sb=w.status==='portfolio'?'<span class="badge bt">In portfolio</span>':w.status==='koop'?'<span class="badge bg">Volgende koop</span>':'<span class="badge bk">Kandidaat</span>';
+    const ps=w.peg!=null&&w.peg<=1?'color:var(--win);font-weight:600':w.peg!=null&&w.peg<=1.5?'color:var(--zd)':'';
+    return`<tr>
+      <td><strong>${w.ticker.replace('.AS','')}</strong></td>
+      <td>${w.naam}</td>
+      <td style="color:var(--muted);font-size:11px">${w.cap}</td>
+      <td>${fv(w.fwdpe)}</td>
+      <td style="${ps}">${fv(w.peg)}</td>
+      <td>${w.roe!=null?w.roe+'%':'—'}</td>
+      <td>${w.margin!=null?w.margin+'%':'—'}</td>
+      <td>${gr(w.epsy)}</td>
+      <td>${cb}</td><td>${sb}</td>
+      <td><button onclick="verwijderWatch('${w.ticker}')" style="padding:2px 8px;background:var(--rl);border:none;border-radius:5px;color:var(--rd);font-size:11px;cursor:pointer;">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── TRANSACTIES ───
+function laadTransacties(){
+  const opgeslagen=localStorage.getItem('transacties_v1');
+  if(opgeslagen){
+    try{transacties=JSON.parse(opgeslagen);}catch(e){transacties=[];}
+  }
+  // Voeg initiële storting toe als die er nog niet is
+  if(!transacties.find(t=>t.id==='init')){
+    transacties.unshift({id:'init',datum:'2026-06-10',type:'storting',ticker:'',aantal:'',prijs:'',bedrag:27208.25,notitie:'Initieel geïnvesteerd bedrag (portfolio opstart)'});
+    slaTransactiesOp();
+  }
+  rTr();
+}
+
+function slaTransactiesOp(){
+  localStorage.setItem('transacties_v1',JSON.stringify(transacties));
+}
+
+function voegTransactieToe(){
+  const type=document.getElementById('tr-type').value;
+  const datum=document.getElementById('tr-datum').value;
+  const ticker=document.getElementById('tr-ticker').value.toUpperCase().trim();
+  const aantal=parseFloat(document.getElementById('tr-aantal').value)||null;
+  const prijs=parseFloat(document.getElementById('tr-prijs').value)||null;
+  const bedrag=parseFloat(document.getElementById('tr-bedrag').value)||(aantal&&prijs?aantal*prijs:null);
+  const notitie=document.getElementById('tr-notitie').value.trim();
+
+  if(!datum){alert('Vul een datum in.');return;}
+  if(!bedrag&&!aantal){alert('Vul minimaal een bedrag of aantal + prijs in.');return;}
+
+  const tr={
+    id:'tr_'+Date.now(),
+    datum,type,ticker,
+    aantal:aantal||'',
+    prijs:prijs||'',
+    bedrag:bedrag||0,
+    notitie
+  };
+  transacties.unshift(tr);
+  slaTransactiesOp();
+  rTr();
+
+  // Reset form
+  document.getElementById('tr-ticker').value='';
+  document.getElementById('tr-aantal').value='';
+  document.getElementById('tr-prijs').value='';
+  document.getElementById('tr-bedrag').value='';
+  document.getElementById('tr-notitie').value='';
+}
+
+function verwijderTransactie(id){
+  if(!confirm('Transactie verwijderen?'))return;
+  transacties=transacties.filter(t=>t.id!==id);
+  slaTransactiesOp();
+  rTr();
+}
+
+function rTr(){
+  const filter=document.getElementById('tr-filter').value;
+  let rows=filter?transacties.filter(t=>t.type===filter):transacties;
+
+  const typeLabels={koop:'Aankoop',verkoop:'Verkoop',storting:'Storting',onttrekking:'Onttrekking',dividend:'Dividend'};
+  const typeBadge={koop:'bt',verkoop:'br',storting:'bg',onttrekking:'bo',dividend:'bk'};
+
+  if(!rows.length){
+    document.getElementById('trbody').innerHTML='<tr><td colspan="8" class="lcel">Geen transacties gevonden.</td></tr>';
+  }else{
+    document.getElementById('trbody').innerHTML=rows.map(t=>`<tr>
+      <td>${t.datum}</td>
+      <td><span class="badge ${typeBadge[t.type]||'bk'}">${typeLabels[t.type]||t.type}</span></td>
+      <td style="font-weight:500">${t.ticker||'—'}</td>
+      <td>${t.aantal||'—'}</td>
+      <td>${t.prijs?'€'+parseFloat(t.prijs).toLocaleString('nl-NL',{minimumFractionDigits:2}):'—'}</td>
+      <td style="font-weight:500">${t.bedrag?eur(t.bedrag):'—'}</td>
+      <td style="color:var(--muted);font-size:11px">${t.notitie||''}</td>
+      <td>${t.id!=='init'?`<button class="btn-del" onclick="verwijderTransactie('${t.id}')">✕</button>`:''}</td>
+    </tr>`).join('');
+  }
+
+  // Samenvatting
+  const totStorting=transacties.filter(t=>t.type==='storting').reduce((s,t)=>s+t.bedrag,0);
+  const totOnttrekking=transacties.filter(t=>t.type==='onttrekking').reduce((s,t)=>s+t.bedrag,0);
+  const totKoop=transacties.filter(t=>t.type==='koop').reduce((s,t)=>s+t.bedrag,0);
+  const totVerkoop=transacties.filter(t=>t.type==='verkoop').reduce((s,t)=>s+t.bedrag,0);
+  const totDividend=transacties.filter(t=>t.type==='dividend').reduce((s,t)=>s+t.bedrag,0);
+  const netto=totStorting-totOnttrekking;
+
+  document.getElementById('tr-summary').innerHTML=`
+    <div style="padding:12px;background:var(--bg2);border-radius:8px;">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Totaal gestort</div>
+      <div style="font-size:18px;font-weight:600;color:var(--tekst)">${eur(totStorting)}</div>
+    </div>
+    <div style="padding:12px;background:var(--bg2);border-radius:8px;">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Totaal onttrokken</div>
+      <div style="font-size:18px;font-weight:600;color:var(--rood)">${eur(totOnttrekking)}</div>
+    </div>
+    <div style="padding:12px;background:var(--bg2);border-radius:8px;">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Netto ingelegd</div>
+      <div style="font-size:18px;font-weight:600;color:var(--tekst)">${eur(netto)}</div>
+    </div>
+    <div style="padding:12px;background:var(--bg2);border-radius:8px;">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Totaal aankopen</div>
+      <div style="font-size:18px;font-weight:600;color:var(--tekst)">${eur(totKoop)}</div>
+    </div>
+    <div style="padding:12px;background:var(--bg2);border-radius:8px;">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Totaal verkopen</div>
+      <div style="font-size:18px;font-weight:600;color:var(--tekst)">${eur(totVerkoop)}</div>
+    </div>
+    <div style="padding:12px;background:var(--bg2);border-radius:8px;">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Dividend ontvangen</div>
+      <div style="font-size:18px;font-weight:600;color:var(--win)">${eur(totDividend)}</div>
+    </div>
+  `;
+}
+
+// ─── NAVIGATIE ───
+function sP(col){pSortCol=pSortCol===col?(pAsc=!pAsc,col):(pAsc=true,col);rP();}
+function sW(col){wSortCol=wSortCol===col?(wAsc=!wAsc,col):(wAsc=true,col);rW();}
+function sF(f,btn){actF=f;document.querySelectorAll('.ftag').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rW();}
+function voegWatchToe(){
+  const ticker=document.getElementById('w-nieuw-ticker').value.trim().toUpperCase();
+  const naam=document.getElementById('w-nieuw-naam').value.trim();
+  if(!ticker||!naam){alert('Vul ticker en naam in.');return;}
+  if(WB.find(w=>w.ticker===ticker)){alert('Ticker staat al in de watchlist.');return;}
+  WB.push({ticker,naam,cap:'—',cap_n:0,sector:document.getElementById('w-nieuw-sector').value,status:document.getElementById('w-nieuw-status').value});
+  slaWBOp(WB);
+  document.getElementById('w-nieuw-ticker').value='';
+  document.getElementById('w-nieuw-naam').value='';
+  rW();
+}
+function verwijderWatch(ticker){
+  if(!confirm(`${ticker} verwijderen uit watchlist?`))return;
+  WB=WB.filter(w=>w.ticker!==ticker);
+  slaWBOp(WB);
+  wData=wData.filter(w=>w.ticker!==ticker);
+  rW();
+}
+function toonP(id,btn){
+  document.querySelectorAll('.pagina').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function slaKeyOp(){
+  const k=document.getElementById('api-key-input').value.trim();
+  if(!k){document.getElementById('key-status').textContent='⚠️ Vul een geldige key in.';return;}
+  localStorage.setItem('rapidapi_key',k);
+  document.getElementById('key-status').innerHTML='<span style="color:var(--win)">✓ Key opgeslagen! Ga naar Portfolio en klik Vernieuwen.</span>';
+}
+
+// ─── INIT ───
+window.onload=function(){
+  // Datum instellen op vandaag
+  document.getElementById('tr-datum').valueAsDate=new Date();
+  // Key laden
+  const k=getKey();
+  if(k){
+    document.getElementById('api-key-input').value=k;
+    document.getElementById('key-status').innerHTML='<span style="color:var(--win)">✓ API key actief.</span>';
+  }
+  // Metrics tonen
+  updateMetrics();
+  // Transacties laden
+  laadTransacties();
+  // Laad opgeslagen data direct - geen API key nodig voor cache
+  try {
+    const opgeslagenPort = localStorage.getItem('portfolio_data');
+    const opgeslagenWatch = localStorage.getItem('watch_data');
+    const lastRefresh = localStorage.getItem('last_refresh');
+    if(opgeslagenPort && opgeslagenWatch){
+      pData = JSON.parse(opgeslagenPort);
+      wData = JSON.parse(opgeslagenWatch);
+      rP(); rW();
+      if(lastRefresh){
+        const dt = new Date(lastRefresh);
+        const nu = new Date();
+        const minuten = Math.round((nu - dt) / 60000);
+        const tijdStr = minuten < 60
+          ? `${minuten} min geleden`
+          : minuten < 1440
+          ? `${Math.round(minuten/60)} uur geleden`
+          : `${Math.round(minuten/1440)} dagen geleden`;
+        document.getElementById('rtime').textContent = `Laatste update: ${tijdStr} (${dt.toLocaleDateString('nl-NL')} ${dt.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'})})`;
+        document.getElementById('pts').textContent = `Gecachte data — ververs om bij te werken`;
+      }
+    }
+  } catch(e) { console.warn('Cache laden mislukt:', e); }
+};
+</script>
+</body>
+</html>
