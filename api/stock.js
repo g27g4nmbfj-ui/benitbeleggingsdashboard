@@ -25,9 +25,9 @@ module.exports = async function(req, res) {
   const KEY = process.env.FMP_KEY || 'Aob1qs04qBBD9v3rARxjWgSGA9fcZda2';
 
   try {
-    const raw = await get(`/api/v3/ratios-ttm/${ticker}?apikey=${KEY}`);
+    const raw = await get(`/api/v4/company-outlook?symbol=${ticker}&apikey=${KEY}`);
     const json = JSON.parse(raw);
-    return res.status(200).json({ debug: true, ticker, raw: json });
+    return res.status(200).json({ debug: true, ticker, keys: Object.keys(json), sample: JSON.stringify(json).substring(0, 500) });
   } catch(err) {
     return res.status(500).json({ error: err.message });
   }
