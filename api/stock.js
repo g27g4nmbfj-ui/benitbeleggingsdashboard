@@ -4,8 +4,7 @@ function get(path) {
   return new Promise((resolve, reject) => {
     const req = https.request({
       hostname: 'finnhub.io',
-      path,
-      method: 'GET',
+      path, method: 'GET',
       headers: { 'Accept': 'application/json' }
     }, (res) => {
       let d = '';
@@ -28,11 +27,15 @@ module.exports = async function(req, res) {
     const raw = await get(`/api/v1/stock/metric?symbol=${ticker}&metric=all&token=${KEY}`);
     const json = JSON.parse(raw);
     const m = json?.metric || {};
-    // Stuur alle beschikbare velden terug
-    const pegVelden = Object.keys(m).filter(k => 
-      ['peg','growth','forward','estimate','eps'].some(x => k.toLowerCase().includes(x))
-    );
-    return res.status(200).json({ ticker, pegVelden, sample: pegVelden.reduce((o,k) => ({...o,[k]:m[k]}), {}) });
+
+    return res.status(200).json({
+      ticker,
+      fwdpe:  m['forwardPE']       != null ? parseFloat(m['forwardPE'].toFixed(2))  : null,
+      peg:    m['forwardPEG']      != null ? parseFloat(m['forwardPEG'].toFixed(2)) : null,
+      roe:    m['roeTTM']          != null ? Math.round(m['roeTTM'])                : null,
+      margin: m['operatingMarginTTM'] != null ? Math.round(m['operatingMarginTTM']) : null,
+      epsy:   m['epsGrowthTTMYoy'] != null ? Math.round(m['epsGrowthTTMYoy'])       : null,
+    });
   } catch(err) {
     return res.status(500).json({ error: err.message });
   }
