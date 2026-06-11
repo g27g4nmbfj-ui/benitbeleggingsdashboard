@@ -36,7 +36,7 @@ module.exports = async function(req, res) {
     return res.status(200).json({
       ticker,
       fwdpe: m['forwardPE'] ?? null,
-      peg: m['priceEarningsTTM'] ?? null,
+      peg: m['pegRatio'] ?? m['priceEarningsToGrowthRatioTTM'] ?? null,
       roe: m['roeTTM'] != null ? Math.round(m['roeTTM']) : null,
       margin: m['operatingMarginTTM'] != null ? Math.round(m['operatingMarginTTM']) : null,
       epsy: m['epsGrowthTTMYoy'] != null ? Math.round(m['epsGrowthTTMYoy']) : null,
