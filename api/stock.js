@@ -22,7 +22,7 @@ module.exports = async function(req, res) {
   res.setHeader('Content-Type', 'application/json');
 
   const ticker = (req.query.ticker || '').replace('.AS', '').toUpperCase();
-const KEY = process.env.FMP_KEY || 'Aob1qs04qBBD9v3rARxjWgSGA9fcZda2';
+  const KEY = process.env.FMP_KEY || 'Aob1qs04qBBD9v3rARxjWgSGA9fcZda2';
 
   if (!ticker) return res.status(400).json({ error: 'Geen ticker' });
   if (!KEY) return res.status(500).json({ error: 'Geen API key geconfigureerd' });
