@@ -1,7 +1,7 @@
 {
   "name": "beleggen-dashboard",
   "version": "1.0.0",
-  "description": "Beleggingsdashboard P.D. Bénit",
+  "private": true,
   "dependencies": {
     "@vercel/kv": "^1.0.0"
   }
