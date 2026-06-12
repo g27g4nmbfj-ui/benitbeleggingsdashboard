@@ -1,4 +1,4 @@
-// Koers: FMP eerst (US + EU), dan Finnhub (US), dan Yahoo chart (fallback)
+// Koers: FMP STABLE eerst (US + EU), dan Finnhub (US), dan Yahoo chart
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   const { symbol } = req.query;
@@ -7,14 +7,17 @@ export default async function handler(req, res) {
   const fmpKey = process.env.FMP_API_KEY || process.env.FMP_KEY;
   const finnKey = process.env.FINNHUB_API_KEY || process.env.FINNHUB_KEY;
 
-  // 1. FMP quote (werkt voor US én EU zoals ADYEN.AS)
+  // 1. FMP stable quote (US én EU zoals ADYEN.AS)
   if (fmpKey) {
     try {
-      const r = await fetch(`https://financialmodelingprep.com/api/v3/quote/${encodeURIComponent(symbol)}?apikey=${fmpKey}`);
-      const d = await r.json();
-      if (Array.isArray(d) && d[0] && d[0].price) {
-        const valuta = symbol.includes('.AS') ? 'EUR' : symbol.includes('.L') ? 'GBP' : 'USD';
-        return res.status(200).json({ c: d[0].price, currency: valuta, bron: 'fmp' });
+      const r = await fetch(`https://financialmodelingprep.com/stable/quote?symbol=${encodeURIComponent(symbol)}&apikey=${fmpKey}`);
+      if (r.ok) {
+        const d = await r.json();
+        const q = Array.isArray(d) ? d[0] : d;
+        if (q && q.price) {
+          const valuta = symbol.includes('.AS') ? 'EUR' : symbol.includes('.L') ? 'GBP' : 'USD';
+          return res.status(200).json({ c: q.price, currency: valuta, bron: 'fmp' });
+        }
       }
     } catch (e) { /* door */ }
   }
