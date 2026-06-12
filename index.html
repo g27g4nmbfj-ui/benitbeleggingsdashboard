@@ -9,16 +9,10 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #ffffff;
-    --bg2: #f7f7f6;
-    --bg3: #f0efec;
-    --text: #1a1a1a;
-    --text2: #6b6b6b;
-    --text3: #9a9a9a;
-    --border: rgba(0,0,0,0.1);
-    --border2: rgba(0,0,0,0.18);
-    --win: #27500a;
-    --verlies: #a32d2d;
+    --bg: #ffffff; --bg2: #f7f7f6; --bg3: #f0efec;
+    --text: #1a1a1a; --text2: #6b6b6b; --text3: #9a9a9a;
+    --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.18);
+    --win: #27500a; --verlies: #a32d2d;
     --info-bg: #e6f1fb; --info-text: #0c447c; --info-border: #b5d4f4;
     --warn-bg: #faeeda; --warn-text: #633806; --warn-border: #fac775;
     --ok-bg: #eaf3de;  --ok-text: #27500a;  --ok-border: #c0dd97;
@@ -40,31 +34,25 @@
   }
 
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; color: var(--text); background: var(--bg3); min-height: 100vh; }
-
   .app { max-width: 1100px; margin: 0 auto; padding: 16px; }
 
-  /* Header */
   .hdr { display: flex; justify-content: space-between; align-items: center; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--rl); padding: 12px 16px; margin-bottom: 12px; }
   .htitle { font-size: 16px; font-weight: 500; }
   .hsubt { font-size: 11px; color: var(--text2); margin-top: 2px; }
   .hright { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 
-  /* Tabs */
   .tabs { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
   .tab { padding: 7px 14px; border: 0.5px solid var(--border); border-radius: var(--r); background: var(--bg); cursor: pointer; font-size: 13px; color: var(--text2); display: flex; align-items: center; gap: 6px; }
   .tab:hover { background: var(--bg2); }
   .tab.active { background: var(--bg2); color: var(--text); font-weight: 500; border-color: var(--border2); }
 
-  /* Pages */
   .pagina { display: none; }
   .pagina.active { display: block; }
 
-  /* Cards & surfaces */
   .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--rl); overflow: hidden; }
   .card-hdr { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; border-bottom: 0.5px solid var(--border); background: var(--bg2); }
   .card-title { font-size: 13px; font-weight: 500; }
 
-  /* Metrics row */
   .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 12px; }
   .metric { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--r); padding: 10px 14px; }
   .mlbl { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
@@ -72,7 +60,6 @@
   .win { color: var(--win); }
   .verlies { color: var(--verlies); }
 
-  /* Info bars */
   .ibar { border-radius: var(--r); padding: 8px 12px; font-size: 12px; margin-bottom: 10px; border: 0.5px solid var(--border); }
   .ibar a { color: inherit; }
   .iteal { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
@@ -80,7 +67,6 @@
   .igroen { background: var(--ok-bg); color: var(--ok-text); border-color: var(--ok-border); }
   .idanger { background: var(--err-bg); color: var(--err-text); border-color: var(--err-border); }
 
-  /* Tables */
   .tscroll { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 12px; }
   th { padding: 7px 12px; text-align: left; color: var(--text2); font-weight: 400; border-bottom: 0.5px solid var(--border); white-space: nowrap; font-size: 11px; background: var(--bg2); }
@@ -90,8 +76,8 @@
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: var(--bg2); }
   .lcel { text-align: center; color: var(--text2); padding: 24px; font-size: 12px; }
+  tr.cashrij td { background: var(--bg2); font-weight: 500; }
 
-  /* Badges */
   .badge { display: inline-block; padding: 2px 7px; border-radius: var(--r); font-size: 10px; font-weight: 500; }
   .bt  { background: var(--info-bg); color: var(--info-text); }
   .bg  { background: var(--ok-bg); color: var(--ok-text); }
@@ -101,7 +87,6 @@
   .bdiv   { background: var(--warn-bg); color: var(--warn-text); }
   .bstort { background: var(--info-bg); color: var(--info-text); }
 
-  /* Buttons */
   .btn { padding: 6px 14px; border: 0.5px solid var(--border2); border-radius: var(--r); background: var(--bg); cursor: pointer; font-size: 13px; color: var(--text); display: inline-flex; align-items: center; gap: 6px; }
   .btn:hover { background: var(--bg2); }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -111,39 +96,29 @@
   .btn-danger { color: var(--verlies); border-color: var(--err-border); }
   .btn-danger:hover { background: var(--err-bg); }
 
-  /* Forms */
   .flabel { font-size: 11px; color: var(--text2); margin-bottom: 4px; display: block; }
-  input, select, textarea {
-    width: 100%; padding: 7px 10px; border: 0.5px solid var(--border2);
-    border-radius: var(--r); background: var(--bg); font-size: 13px; color: var(--text);
-    font-family: inherit;
-  }
+  input, select { width: 100%; padding: 7px 10px; border: 0.5px solid var(--border2); border-radius: var(--r); background: var(--bg); font-size: 13px; color: var(--text); font-family: inherit; }
   input:focus, select:focus { outline: none; border-color: var(--text2); }
   .formrij { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
   .formrij.enkl { grid-template-columns: 1fr; }
 
-  /* Import zone */
   .import-zone { border: 1.5px dashed var(--border2); border-radius: var(--rl); padding: 24px 16px; text-align: center; cursor: pointer; margin-bottom: 8px; }
   .import-zone:hover, .import-zone.drag { border-color: var(--text2); background: var(--bg2); }
   .import-titel { font-size: 14px; font-weight: 500; margin-bottom:6px; }
   .import-sub { font-size: 12px; color: var(--text2); line-height: 1.7; }
 
-  /* Sectie headers */
   .sectie { margin-bottom: 16px; }
   .sectie-hdr { font-size: 11px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 0.5px solid var(--border); }
 
-  /* Transacties layout */
   .tr-layout { display: grid; grid-template-columns: 320px 1fr; gap: 16px; align-items: start; }
-  .tr-list { max-height: 380px; overflow-y: auto; }
+  .tr-list { max-height: 420px; overflow-y: auto; }
   .filter-bar { display: flex; gap: 6px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
   .filter-bar input, .filter-bar select { max-width: 140px; }
 
-  /* KV status */
   .kv-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
   .kv-ok { background: var(--win); }
   .kv-err { background: var(--verlies); }
   .kv-wait { background: var(--warn-text); }
-
   .rtime { font-size: 11px; color: var(--text2); }
 
   @media (max-width: 700px) {
@@ -155,7 +130,6 @@
 <body>
 <div class="app">
 
-  <!-- Header -->
   <div class="hdr">
     <div>
       <div class="htitle">Beleggingsdashboard</div>
@@ -167,7 +141,6 @@
     </div>
   </div>
 
-  <!-- Tabs -->
   <div class="tabs">
     <button class="tab active" onclick="toonP('portfolio',this)"><i class="ti ti-chart-bar"></i> Portfolio</button>
     <button class="tab" onclick="toonP('watchlist',this)"><i class="ti ti-star"></i> Watchlist</button>
@@ -178,30 +151,29 @@
   <!-- PORTFOLIO -->
   <div id="portfolio" class="pagina active">
     <div class="metrics">
-      <div class="metric"><div class="mlbl">Geïnvesteerd</div><div class="mval" id="pi">—</div></div>
+      <div class="metric"><div class="mlbl">Ingelegd (netto)</div><div class="mval" id="pi">—</div></div>
       <div class="metric"><div class="mlbl">Huidige waarde</div><div class="mval" id="pw">—</div></div>
       <div class="metric"><div class="mlbl">Resultaat</div><div class="mval" id="pr">—</div></div>
       <div class="metric"><div class="mlbl">Rendement</div><div class="mval" id="pp">—</div></div>
     </div>
-    <div class="ibar iteal">Criteria: Fwd P/E &lt;25 · PEG &lt;2 · ROE &gt;20% · Op.Margin &gt;15% — groen = OK, rood = buiten grens</div>
+    <div class="ibar iteal">Criteria: Fwd P/E &lt;25 · PEG &lt;2 · ROE &gt;20% · Op.Margin &gt;15% — alle bedragen in EUR (USD omgerekend)</div>
     <div class="card">
       <div class="card-hdr">
         <div class="card-title">Posities &amp; criteria check</div>
-        <div style="font-size:11px;color:var(--text2)" id="pts">Klik Vernieuwen</div>
+        <div style="font-size:11px;color:var(--text2)" id="pts">Wordt geladen...</div>
       </div>
       <div class="tscroll">
         <table>
           <thead><tr>
-            <th>Aandeel</th><th>Aand.</th><th>GAK</th><th>Waarde</th>
+            <th>Positie</th><th>Aand.</th><th>GAK €</th><th>Koers €</th><th>Waarde €</th>
             <th class="sort" onclick="sP('res')">Resultaat ↕</th>
             <th>Gewicht</th>
             <th class="sort" onclick="sP('fwdpe')">Fwd P/E ↕</th>
             <th class="sort" onclick="sP('peg')">PEG ↕</th>
             <th class="sort" onclick="sP('roe')">ROE ↕</th>
-            <th class="sort" onclick="sP('margin')">Margin ↕</th>
             <th>Actie</th>
           </tr></thead>
-          <tbody id="ptbody"><tr><td colspan="11" class="lcel">Klik Vernieuwen om data te laden</td></tr></tbody>
+          <tbody id="ptbody"><tr><td colspan="11" class="lcel">Transacties laden...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -231,8 +203,6 @@
   <!-- TRANSACTIES -->
   <div id="transacties" class="pagina">
     <div class="tr-layout">
-
-      <!-- Links: invoer + import -->
       <div>
         <div class="sectie">
           <div class="sectie-hdr">Handmatig toevoegen</div>
@@ -242,7 +212,9 @@
                 <option value="koop">Koop</option>
                 <option value="verkoop">Verkoop</option>
                 <option value="storting">Storting</option>
+                <option value="opname">Opname</option>
                 <option value="dividend">Dividend</option>
+                <option value="kosten">Kosten</option>
               </select>
             </div>
             <div><label class="flabel">Datum</label><input type="date" id="tr-datum"></div>
@@ -252,8 +224,8 @@
             <div><label class="flabel">Aantal</label><input type="number" id="tr-aantal" placeholder="16" step="0.0001"></div>
           </div>
           <div class="formrij">
-            <div><label class="flabel">Prijs (€)</label><input type="number" id="tr-prijs" placeholder="207.48" step="0.0001"></div>
-            <div><label class="flabel">Bedrag (€)</label><input type="number" id="tr-bedrag" placeholder="auto" step="0.01"></div>
+            <div><label class="flabel">Prijs €</label><input type="number" id="tr-prijs" placeholder="180.56" step="0.0001"></div>
+            <div><label class="flabel">Bedrag €</label><input type="number" id="tr-bedrag" placeholder="auto" step="0.01"></div>
           </div>
           <div class="formrij enkl"><label class="flabel">Notitie</label><input type="text" id="tr-notitie" placeholder="Optioneel"></div>
           <button class="btn btn-prim" onclick="voegToe()" style="width:100%;margin-top:4px;justify-content:center">
@@ -267,11 +239,11 @@
             onclick="document.getElementById('csvInput').click()"
             ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
             <div style="font-size:32px;color:var(--text2);margin-bottom:8px"><i class="ti ti-file-upload"></i></div>
-            <div class="import-titel">Sleep CSV hier of klik om te kiezen</div>
+            <div class="import-titel">Sleep Account_xxx.csv hier</div>
             <div class="import-sub">
-              DeGiro: Account → Rapportages → Rekeningoverzicht<br>
-              Exporteer als CSV · Meerdere imports zijn veilig<br>
-              Duplicaten worden automatisch overgeslagen
+              DeGiro: Inbox → Rekeningoverzicht → Export CSV<br>
+              Meerdere imports zijn veilig — duplicaten<br>
+              worden via Order ID herkend en overgeslagen
             </div>
           </div>
           <input type="file" id="csvInput" accept=".csv" style="display:none" onchange="importCSV(this.files[0])">
@@ -279,7 +251,6 @@
         </div>
       </div>
 
-      <!-- Rechts: logboek -->
       <div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
           <div class="sectie-hdr" style="margin:0;border:none;padding:0">Transactielogboek</div>
@@ -292,7 +263,9 @@
             <option value="koop">Koop</option>
             <option value="verkoop">Verkoop</option>
             <option value="storting">Storting</option>
+            <option value="opname">Opname</option>
             <option value="dividend">Dividend</option>
+            <option value="kosten">Kosten</option>
           </select>
           <button class="btn btn-sm" onclick="exportTransacties()" title="Exporteer CSV"><i class="ti ti-download"></i></button>
           <button class="btn btn-sm btn-danger" onclick="clearAlles()" title="Wis alles"><i class="ti ti-trash"></i></button>
@@ -301,9 +274,9 @@
           <div class="tr-list">
             <table>
               <thead><tr>
-                <th>Datum</th><th>Type</th><th>Ticker</th><th>Aantal</th><th>Prijs</th><th>Bedrag</th><th></th>
+                <th>Datum</th><th>Type</th><th>Ticker</th><th>Aantal</th><th>Bedrag €</th><th></th>
               </tr></thead>
-              <tbody id="trbody"><tr><td colspan="7" class="lcel">Nog geen transacties</td></tr></tbody>
+              <tbody id="trbody"><tr><td colspan="6" class="lcel">Nog geen transacties</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -339,7 +312,6 @@
           <tr><td style="font-size:11px">Bij dip van -30%</td><td style="font-size:11px;color:var(--text2)">Bijkopen, nooit verkopen</td></tr>
           <tr><td style="font-size:11px">Verkopen enkel als</td><td style="font-size:11px;color:var(--text2)">Fundamenten verslechteren</td></tr>
           <tr><td style="font-size:11px">MSFT</td><td style="font-size:11px;color:var(--win);font-weight:500">Nooit verkopen</td></tr>
-          <tr><td style="font-size:11px">NVDA ankerprijs</td><td style="font-size:11px;color:var(--text2)">$207,48 (jun 2026)</td></tr>
           <tr><td style="font-size:11px">Volgende aankoop</td><td style="font-size:11px;color:var(--text2)">TSM — september 2026</td></tr>
         </tbody></table>
       </div>
@@ -352,19 +324,40 @@
     </div>
   </div>
 
-</div><!-- /app -->
+</div>
 
 <script>
-// ─── CONFIG ──────────────────────────────────────────────────────────────────
-const PORTFOLIO_DEF = [
-  { ticker: 'MSFT',     naam: 'Microsoft',  actie: 'Nooit verkopen' },
-  { ticker: 'ADYEN.AS', naam: 'Adyen',      actie: 'Houd vast' },
-  { ticker: 'META',     naam: 'Meta',        actie: 'Houd vast' },
-  { ticker: 'AMZN',     naam: 'Amazon',      actie: 'Houd vast' },
-  { ticker: 'NVDA',     naam: 'NVIDIA',      actie: 'Min. 3 jaar houden' },
-  { ticker: 'SPGI',     naam: 'S&P Global',  actie: 'Monitoren ROE' },
-  { ticker: 'UBER',     naam: 'Uber',        actie: 'Zwakste positie' }
+// ═══ CONFIG ════════════════════════════════════════════════════════════════
+// Product (DeGiro naam) → ticker + valuta. Volgorde belangrijk: specifiekste eerst.
+const PRODUCT_MAP = [
+  { match: 'MICROSOFT',       ticker: 'MSFT',     valuta: 'USD', naam: 'Microsoft' },
+  { match: 'NVIDIA',          ticker: 'NVDA',     valuta: 'USD', naam: 'NVIDIA' },
+  { match: 'META PLATFORMS',  ticker: 'META',     valuta: 'USD', naam: 'Meta' },
+  { match: 'AMAZON',          ticker: 'AMZN',     valuta: 'USD', naam: 'Amazon' },
+  { match: 'UBER',            ticker: 'UBER',     valuta: 'USD', naam: 'Uber' },
+  { match: 'S&P GLOBAL',      ticker: 'SPGI',     valuta: 'USD', naam: 'S&P Global' },
+  { match: 'ADYEN',           ticker: 'ADYEN.AS', valuta: 'EUR', naam: 'Adyen' },
+  { match: 'EBUSCO',          ticker: 'EBUS.AS',  valuta: 'EUR', naam: 'Ebusco' },
+  { match: 'RED CAT',         ticker: 'RCAT',     valuta: 'USD', naam: 'Red Cat' },
+  { match: 'ONDAS',           ticker: 'ONDS',     valuta: 'USD', naam: 'Ondas' },
+  { match: 'NOVO NORDISK',    ticker: 'NVO',      valuta: 'USD', naam: 'Novo Nordisk' },
+  { match: 'WOLTERS KLUWER',  ticker: 'WKL.AS',   valuta: 'EUR', naam: 'Wolters Kluwer' },
+  { match: 'ASML',            ticker: 'ASML.AS',  valuta: 'EUR', naam: 'ASML' },
+  { match: 'ANNALY',          ticker: 'NLY',      valuta: 'USD', naam: 'Annaly' },
+  { match: 'APPLE HOSPITALITY', ticker: 'APLE',   valuta: 'USD', naam: 'Apple Hosp. REIT' },
+  { match: 'CONSTELLATION BRANDS', ticker: 'STZ', valuta: 'USD', naam: 'Constellation' },
+  { match: 'COTERRA',         ticker: 'CTRA',     valuta: 'USD', naam: 'Coterra' },
+  { match: 'DYNEX',           ticker: 'DX',       valuta: 'USD', naam: 'Dynex' },
+  { match: 'PROSPECT CAPITAL', ticker: 'PSEC',    valuta: 'USD', naam: 'Prospect Cap.' },
+  { match: '3I GROUP',        ticker: 'III.L',    valuta: 'GBP', naam: '3i Group' }
 ];
+
+const ACTIE_MAP = {
+  'MSFT': 'Nooit verkopen', 'NVDA': 'Min. 3 jaar houden',
+  'ADYEN.AS': 'Houd vast', 'META': 'Houd vast', 'AMZN': 'Houd vast',
+  'SPGI': 'Monitoren ROE', 'UBER': 'Zwakste positie',
+  'EBUS.AS': 'Verkooplijst'
+};
 
 const WATCHLIST_DEF = [
   { ticker:'TSM', naam:'TSMC',       cap:'Mega', fwdpe:18, peg:1.1, roe:30, margin:45, epsy:35, labels:['Halfgeleider','Moat'], status:'koop' },
@@ -372,82 +365,65 @@ const WATCHLIST_DEF = [
   { ticker:'V',   naam:'Visa',       cap:'Mega', fwdpe:26, peg:1.9, roe:45, margin:65, epsy:12, labels:['Fintech','Stabiel'],  status:'later' }
 ];
 
-const DEGIRO_TICKER_MAP = {
-  'MICROSOFT': 'MSFT', 'NVIDIA': 'NVDA', 'META PLATFORMS': 'META',
-  'AMAZON': 'AMZN', 'UBER TECHNOLOGIES': 'UBER', 'UBER': 'UBER',
-  'S&P GLOBAL': 'SPGI', 'ADYEN': 'ADYEN.AS',
-  'EBUSCO': 'EBUSCO.AS', 'RED CAT': 'RCAT', 'ONDAS': 'ONDS'
-};
-
-// ─── STATE ───────────────────────────────────────────────────────────────────
+// ═══ STATE ═════════════════════════════════════════════════════════════════
 let transacties = [];
 let portfolioData = [];
 let watchData = [...WATCHLIST_DEF];
-let sortPortDir = {};
-let sortWatDir = {};
+let sortPortDir = {}, sortWatDir = {};
 let kvOk = false;
+let fxRates = { EUR: 1 }; // koersen per 1 EUR (frankfurter: rates base EUR)
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
+// ═══ INIT ══════════════════════════════════════════════════════════════════
 async function init() {
   await laadTransacties();
   rWatchlist();
-  // Toon gecachede koersen meteen — geen witte pagina na refresh
   laadGecachedeKoersen();
-  // Haal daarna verse koersen op (niet blokkeren)
   refreshData();
 }
 
-// Sla portfolioData op in localStorage zodat het meteen zichtbaar is bij reload
-function slaKoersenOp(data, tw, ti) {
-  try {
-    localStorage.setItem('beleggen_koersen_v4', JSON.stringify({ data, tw, ti, ts: Date.now() }));
-  } catch (_) {}
-}
-
-function laadGecachedeKoersen() {
-  try {
-    const raw = localStorage.getItem('beleggen_koersen_v4');
-    if (!raw) return;
-    const { data, tw, ti, ts } = JSON.parse(raw);
-    if (!data || !data.length) return;
-    portfolioData = data;
-    rPortfolio(data, tw, ti);
-    const minuten = Math.round((Date.now() - ts) / 60000);
-    document.getElementById('pts').textContent = `Cache · ${minuten}m geleden — koersen worden ververst...`;
-  } catch (_) {}
-}
-
-// ─── KV OPSLAG ───────────────────────────────────────────────────────────────
+// ═══ KV OPSLAG ═════════════════════════════════════════════════════════════
 function setKvStatus(status, tekst) {
   const dot = status === 'ok' ? 'kv-ok' : status === 'err' ? 'kv-err' : 'kv-wait';
-  document.getElementById('kv-status').innerHTML =
-    `<span class="kv-dot ${dot}"></span>${tekst}`;
+  document.getElementById('kv-status').innerHTML = `<span class="kv-dot ${dot}"></span>${tekst}`;
+}
+
+function laadLokaal() {
+  try {
+    const raw = localStorage.getItem('beleggen_tr_v5');
+    return raw ? JSON.parse(raw) : [];
+  } catch (_) { return []; }
 }
 
 async function laadTransacties() {
   setKvStatus('wait', 'Verbinden...');
+  const lokaal = laadLokaal();
   try {
     const r = await fetch('/api/kv');
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    transacties = await r.json();
+    const cloud = await r.json();
     kvOk = true;
-    setKvStatus('ok', 'Opgeslagen in cloud');
+    if (Array.isArray(cloud) && cloud.length > 0) {
+      transacties = cloud;
+      setKvStatus('ok', 'Cloud verbonden');
+    } else if (lokaal.length > 0) {
+      // Cloud leeg maar lokaal heeft data → lokaal gebruiken en naar cloud pushen
+      transacties = lokaal;
+      setKvStatus('ok', 'Cloud verbonden — lokale data hersteld');
+      slaOp();
+    } else {
+      transacties = [];
+      setKvStatus('ok', 'Cloud verbonden');
+    }
   } catch (e) {
-    // Fallback naar localStorage als KV niet beschikbaar is
     kvOk = false;
-    setKvStatus('err', 'Offline — lokaal opgeslagen');
-    try {
-      const local = localStorage.getItem('beleggen_tr_v4');
-      if (local) transacties = JSON.parse(local);
-    } catch (_) { transacties = []; }
+    transacties = lokaal;
+    setKvStatus('err', 'Geen cloud — lokaal opgeslagen (data blijft bewaard in deze browser)');
   }
   rTr();
 }
 
 async function slaOp() {
-  // Altijd lokaal opslaan als backup
-  try { localStorage.setItem('beleggen_tr_v4', JSON.stringify(transacties)); } catch (_) {}
-
+  try { localStorage.setItem('beleggen_tr_v5', JSON.stringify(transacties)); } catch (_) {}
   if (kvOk) {
     try {
       const r = await fetch('/api/kv', {
@@ -457,51 +433,271 @@ async function slaOp() {
       });
       if (!r.ok) throw new Error();
     } catch (e) {
-      setKvStatus('err', 'Opslaan mislukt — lokaal bewaard');
+      setKvStatus('err', 'Cloud opslaan mislukt — lokaal bewaard');
     }
   }
 }
 
-// ─── HASH (duplicaatdetectie) ─────────────────────────────────────────────────
-function hash(t) {
-  const d  = (t.datum   || '').trim();
-  const tk = (t.ticker  || '').toUpperCase().trim();
-  const tp = (t.type    || '').toLowerCase().trim();
-  const a  = parseFloat(t.aantal)  || 0;
-  const p  = parseFloat(t.prijs)   || 0;
-  const b  = parseFloat(t.bedrag)  || 0;
-  return `${d}|${tk}|${tp}|${a.toFixed(4)}|${p.toFixed(4)}|${b.toFixed(2)}`;
+// ═══ KOERS CACHE ═══════════════════════════════════════════════════════════
+function slaKoersenOp(data, tw, ti) {
+  try { localStorage.setItem('beleggen_koersen_v5', JSON.stringify({ data, tw, ti, ts: Date.now() })); } catch (_) {}
 }
 
-// ─── HANDMATIG TOEVOEGEN ─────────────────────────────────────────────────────
+function laadGecachedeKoersen() {
+  try {
+    const raw = localStorage.getItem('beleggen_koersen_v5');
+    if (!raw) return;
+    const { data, tw, ti, ts } = JSON.parse(raw);
+    if (!data || !data.length) return;
+    portfolioData = data;
+    rPortfolio(data, tw, ti);
+    const minuten = Math.round((Date.now() - ts) / 60000);
+    document.getElementById('pts').textContent = `Cache (${minuten}m oud) — wordt ververst...`;
+  } catch (_) {}
+}
+
+// ═══ HULPFUNCTIES ══════════════════════════════════════════════════════════
+function num(s) {
+  if (s == null || String(s).trim() === '') return null;
+  const v = parseFloat(String(s).trim().replace(/\./g, '').replace(',', '.'));
+  return isNaN(v) ? null : v;
+}
+
+function parseDatum(raw) {
+  if (!raw) return '';
+  const s = raw.trim();
+  const m = s.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.substring(0, 10);
+  return s;
+}
+
+function productNaarTicker(product) {
+  const p = (product || '').toUpperCase();
+  for (const e of PRODUCT_MAP) {
+    if (p.includes(e.match)) return e;
+  }
+  const t = p.split(/\s+/)[0].replace(/[^A-Z0-9.]/g, '').substring(0, 6);
+  return { ticker: t, valuta: 'USD', naam: product.substring(0, 20) };
+}
+
+function hashTr(t) {
+  const d = (t.datum || '').trim();
+  const tk = (t.ticker || '').toUpperCase().trim();
+  const tp = (t.type || '').toLowerCase().trim();
+  const a = parseFloat(t.aantal) || 0;
+  const b = parseFloat(t.bedrag) || 0;
+  return `${d}|${tk}|${tp}|${a.toFixed(4)}|${b.toFixed(2)}`;
+}
+
+// ═══ DEGIRO CSV IMPORT (Order ID gebaseerd) ════════════════════════════════
+function dragOver(e)  { e.preventDefault(); document.getElementById('dropzone').classList.add('drag'); }
+function dragLeave()  { document.getElementById('dropzone').classList.remove('drag'); }
+function dropFile(e)  { e.preventDefault(); dragLeave(); const f = e.dataTransfer.files[0]; if (f) importCSV(f); }
+
+function parseCsvLijn(lijn) {
+  const cels = []; let inQ = false, cur = '';
+  for (let i = 0; i < lijn.length; i++) {
+    const c = lijn[i];
+    if (c === '"') { inQ = !inQ; continue; }
+    if (c === ',' && !inQ) { cels.push(cur); cur = ''; continue; }
+    cur += c;
+  }
+  cels.push(cur);
+  return cels.map(c => c.trim());
+}
+
+async function importCSV(file) {
+  if (!file) return;
+  const resultEl = document.getElementById('import-result');
+  resultEl.innerHTML = '<div class="ibar iteal" style="margin-top:8px"><i class="ti ti-loader"></i> Bestand verwerken...</div>';
+
+  const tekst = await file.text();
+  const regels = tekst.split(/\r?\n/).filter(r => r.trim().length > 0);
+  if (regels.length < 2) {
+    resultEl.innerHTML = '<div class="ibar idanger" style="margin-top:8px">Leeg bestand.</div>';
+    return;
+  }
+
+  // DeGiro rekeningoverzicht: vaste kolommen
+  // 0=Datum 1=Tijd 2=Valutadatum 3=Product 4=ISIN 5=Omschrijving 6=FX 7=Valuta 8=Mutatie 9=SaldoVal 10=Saldo 11=OrderId
+  const I = { datum: 0, tijd: 1, product: 3, omschr: 5, fx: 6, valuta: 7, bedrag: 8, orderid: 11 };
+
+  const rows = [];
+  for (let i = 1; i < regels.length; i++) {
+    const c = parseCsvLijn(regels[i]);
+    if (c.length < 9) continue;
+    rows.push({
+      datum: c[I.datum] || '', tijd: c[I.tijd] || '', product: c[I.product] || '',
+      omschr: c[I.omschr] || '', valuta: c[I.valuta] || '',
+      bedrag: c[I.bedrag] || '', orderid: c.length > I.orderid ? (c[I.orderid] || '') : ''
+    });
+  }
+
+  // ── Stap 1: trades per Order ID groeperen (multi-fill support) ──
+  const groups = {};
+  rows.forEach(r => { if (r.orderid) (groups[r.orderid] = groups[r.orderid] || []).push(r); });
+
+  const nieuweTrans = [];
+  let splits = 0;
+
+  for (const oid of Object.keys(groups)) {
+    const g = groups[oid];
+    const fills = [];
+    for (const r of g) {
+      const m = r.omschr.match(/^(Koop|Verkoop)\s+([\d.,]+)\s*@\s*([\d.,]+)\s*([A-Z]{3})?/i);
+      if (m) fills.push({ r, m });
+    }
+    if (!fills.length) continue;
+
+    const type = fills[0].m[1].toLowerCase() === 'koop' ? 'koop' : 'verkoop';
+    const aantal = fills.reduce((s, f) => s + (num(f.m[2]) || 0), 0);
+    const valuta = fills[0].m[4] || fills[0].r.valuta || 'EUR';
+    const datum = parseDatum(fills[0].r.datum);
+    const product = fills[0].r.product;
+    const tinfo = productNaarTicker(product);
+
+    let bedrag;
+    if (valuta === 'EUR') {
+      bedrag = fills.reduce((s, f) => s + Math.abs(num(f.r.bedrag) || 0), 0);
+    } else {
+      const zoek = type === 'koop' ? 'Valuta Debitering' : 'Valuta Creditering';
+      bedrag = g.filter(r => r.valuta === 'EUR' && r.omschr.includes(zoek))
+                .reduce((s, r) => s + Math.abs(num(r.bedrag) || 0), 0);
+    }
+
+    const kosten = g.filter(r => /Transactiekosten|Stamp Duty/i.test(r.omschr))
+                    .reduce((s, r) => s + Math.abs(num(r.bedrag) || 0), 0);
+
+    // Kosten meenemen in kostbasis bij koop; aftrekken van opbrengst bij verkoop
+    const totaalBedrag = type === 'koop'
+      ? Math.round((bedrag + kosten) * 100) / 100
+      : Math.round((bedrag - kosten) * 100) / 100;
+
+    if (!bedrag && !aantal) continue;
+
+    nieuweTrans.push({
+      id: 'ord_' + oid,
+      datum, tijd: fills[0].r.tijd || '', type, ticker: tinfo.ticker,
+      aantal: Math.round(aantal * 10000) / 10000,
+      prijs: aantal ? Math.round(totaalBedrag / aantal * 10000) / 10000 : '',
+      bedrag: totaalBedrag,
+      notitie: 'DeGiro: ' + product.substring(0, 30)
+    });
+  }
+
+  // ── Stap 2: cashflow regels (geen order id) ──
+  // Dividend & dividendbelasting netten per datum+product
+  const divMap = {};
+  for (const r of rows) {
+    if (r.omschr === 'Dividend' || r.omschr === 'Dividendbelasting') {
+      const key = r.datum + '|' + r.product;
+      if (!divMap[key]) divMap[key] = { datum: r.datum, product: r.product, bedrag: 0, valuta: r.valuta };
+      divMap[key].bedrag += num(r.bedrag) || 0;
+    }
+  }
+  for (const key of Object.keys(divMap)) {
+    const d = divMap[key];
+    if (Math.abs(d.bedrag) < 0.005) continue;
+    const tinfo = productNaarTicker(d.product);
+    nieuweTrans.push({
+      id: 'div_' + key.replace(/[^a-zA-Z0-9]/g, '_'),
+      datum: parseDatum(d.datum), type: 'dividend', ticker: tinfo.ticker,
+      aantal: '', prijs: '',
+      bedrag: Math.round(d.bedrag * 100) / 100,
+      notitie: 'Dividend netto (' + d.valuta + ')'
+    });
+  }
+
+  for (const r of rows) {
+    const o = r.omschr;
+    let type = null, notitie = '';
+
+    if (o === 'iDEAL Deposit' || o === 'Storting' || o === 'flatex Storting') {
+      type = 'storting'; notitie = o;
+    } else if (/Processed Flatex Withdrawal|terugstorting/i.test(o)) {
+      type = 'opname'; notitie = 'Opname';
+    } else if (/Interest Income/i.test(o)) {
+      type = 'dividend'; notitie = 'Rente flatex';
+    } else if (/Aansluitingskosten/i.test(o)) {
+      type = 'kosten'; notitie = o.substring(0, 40);
+    } else if (/SPLIT AANPASSING/i.test(o)) {
+      splits++;
+      continue;
+    } else {
+      continue;
+    }
+
+    const bedrag = num(r.bedrag);
+    if (bedrag == null || bedrag === 0) continue;
+
+    nieuweTrans.push({
+      id: (type + '_' + r.datum + '_' + Math.abs(bedrag).toFixed(2)).replace(/[^a-zA-Z0-9_.]/g, '_'),
+      datum: parseDatum(r.datum), type, ticker: '',
+      aantal: '', prijs: '',
+      bedrag: Math.round(Math.abs(bedrag) * 100) / 100,
+      notitie
+    });
+  }
+
+  // ── Stap 3: duplicaten overslaan (op id én hash) ──
+  const bestaandeIds = new Set(transacties.map(t => t.id));
+  const bestaandeHashes = new Set(transacties.map(t => hashTr(t)));
+  let toegevoegd = 0, overgeslagen = 0;
+
+  for (const tr of nieuweTrans) {
+    if (bestaandeIds.has(tr.id) || bestaandeHashes.has(hashTr(tr))) { overgeslagen++; continue; }
+    bestaandeIds.add(tr.id);
+    bestaandeHashes.add(hashTr(tr));
+    transacties.push(tr);
+    toegevoegd++;
+  }
+
+  if (toegevoegd > 0) {
+    transacties.sort((a, b) => (b.datum || '').localeCompare(a.datum || ''));
+    await slaOp();
+    rTr();
+    refreshData();
+  }
+
+  const splitWaarschuwing = splits > 0
+    ? `<div style="margin-top:4px;font-size:11px">⚠ ${splits} split-aanpassing(en) overgeslagen — controleer het aantal Ebusco aandelen handmatig.</div>`
+    : '';
+
+  resultEl.innerHTML = `
+    <div class="ibar ${toegevoegd > 0 ? 'igroen' : 'iteal'}" style="margin-top:8px">
+      <div style="font-weight:500;margin-bottom:4px"><i class="ti ti-check"></i> Import klaar — ${file.name}</div>
+      <div>Toegevoegd: <strong>${toegevoegd}</strong> · Duplicaat overgeslagen: <strong>${overgeslagen}</strong></div>
+      ${splitWaarschuwing}
+      <div style="margin-top:4px;font-size:11px;opacity:0.8">Bedragen in EUR (incl. transactiekosten). Opnieuw importeren is altijd veilig.</div>
+    </div>`;
+
+  document.getElementById('csvInput').value = '';
+}
+
+// ═══ HANDMATIG TOEVOEGEN ═══════════════════════════════════════════════════
 async function voegToe() {
-  const type   = document.getElementById('tr-type').value;
-  const datum  = document.getElementById('tr-datum').value;
+  const type = document.getElementById('tr-type').value;
+  const datum = document.getElementById('tr-datum').value;
   const ticker = document.getElementById('tr-ticker').value.toUpperCase().trim();
   const aantal = parseFloat(document.getElementById('tr-aantal').value) || null;
-  const prijs  = parseFloat(document.getElementById('tr-prijs').value)  || null;
+  const prijs = parseFloat(document.getElementById('tr-prijs').value) || null;
   const bedragInput = parseFloat(document.getElementById('tr-bedrag').value) || null;
   const bedrag = bedragInput || (aantal && prijs ? Math.round(aantal * prijs * 100) / 100 : null);
   const notitie = document.getElementById('tr-notitie').value.trim();
 
-  if (!datum)             { alert('Vul een datum in.'); return; }
+  if (!datum) { alert('Vul een datum in.'); return; }
   if (!bedrag && !aantal) { alert('Vul minimaal een bedrag of aantal + prijs in.'); return; }
 
-  const tr = {
-    id: 'm_' + Date.now(), datum, type, ticker,
-    aantal: aantal || '', prijs: prijs || '',
-    bedrag: bedrag || 0, notitie
-  };
-
-  if (transacties.some(t => hash(t) === hash(tr))) {
-    alert('Duplicaat — deze transactie bestaat al.'); return;
-  }
+  const tr = { id: 'm_' + Date.now(), datum, type, ticker, aantal: aantal || '', prijs: prijs || '', bedrag: bedrag || 0, notitie };
+  if (transacties.some(t => hashTr(t) === hashTr(tr))) { alert('Duplicaat — bestaat al.'); return; }
 
   transacties.unshift(tr);
+  transacties.sort((a, b) => (b.datum || '').localeCompare(a.datum || ''));
   await slaOp();
   rTr();
-  ['tr-ticker','tr-aantal','tr-prijs','tr-bedrag','tr-notitie']
-    .forEach(id => document.getElementById(id).value = '');
+  refreshData();
+  ['tr-ticker','tr-aantal','tr-prijs','tr-bedrag','tr-notitie'].forEach(id => document.getElementById(id).value = '');
 }
 
 async function verwijder(id) {
@@ -511,202 +707,13 @@ async function verwijder(id) {
   rTr();
 }
 
-// ─── DEGIRO CSV IMPORT ───────────────────────────────────────────────────────
-function dragOver(e)  { e.preventDefault(); document.getElementById('dropzone').classList.add('drag'); }
-function dragLeave()  { document.getElementById('dropzone').classList.remove('drag'); }
-function dropFile(e)  { e.preventDefault(); dragLeave(); const f = e.dataTransfer.files[0]; if (f) importCSV(f); }
-
-function parseDatum(raw) {
-  if (!raw) return '';
-  const s = raw.trim();
-  const m1 = s.match(/^(\d{2})-(\d{2})-(\d{4})$/);
-  if (m1) return `${m1[3]}-${m1[2]}-${m1[1]}`;
-  const m2 = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  if (m2) return `${m2[3]}-${m2[2]}-${m2[1]}`;
-  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.substring(0, 10);
-  return s;
-}
-
-function parseGetal(raw) {
-  if (!raw || raw.trim() === '') return null;
-  const s = raw.trim();
-  // "1.234,56" → 1234.56   |   "1,234.56" → 1234.56   |   "207,48" → 207.48
-  if (s.includes(',') && s.includes('.')) {
-    if (s.lastIndexOf(',') > s.lastIndexOf('.')) {
-      return parseFloat(s.replace(/\./g, '').replace(',', '.'));
-    } else {
-      return parseFloat(s.replace(/,/g, ''));
-    }
-  }
-  if (s.includes(',')) return parseFloat(s.replace(',', '.'));
-  return parseFloat(s) || null;
-}
-
-function productNaarTicker(product) {
-  const p = product.toUpperCase().trim();
-  for (const [key, val] of Object.entries(DEGIRO_TICKER_MAP)) {
-    if (p.includes(key.toUpperCase())) return val;
-  }
-  return p.split(/\s+/)[0].replace(/[^A-Z0-9.]/g, '').substring(0, 6);
-}
-
-function parseLijn(lijn, sep) {
-  const cels = []; let inQ = false, cur = '';
-  for (let i = 0; i < lijn.length; i++) {
-    const c = lijn[i];
-    if (c === '"') { inQ = !inQ; continue; }
-    if (c === sep && !inQ) { cels.push(cur.trim()); cur = ''; continue; }
-    cur += c;
-  }
-  cels.push(cur.trim());
-  return cels;
-}
-
-async function importCSV(file) {
-  if (!file) return;
-  const resultEl = document.getElementById('import-result');
-  resultEl.innerHTML = '<div class="ibar iteal" style="margin-top:8px"><i class="ti ti-loader"></i> Bestand verwerken...</div>';
-
-  const tekst = await file.text();
-  const regels = tekst.split(/\r?\n/).map(r => r.trim()).filter(r => r.length > 0);
-  if (regels.length < 2) {
-    resultEl.innerHTML = '<div class="ibar idanger">Leeg bestand of onleesbaar formaat.</div>';
-    return;
-  }
-
-  const sep = regels[0].split(';').length > regels[0].split(',').length ? ';' : ',';
-  const headers = parseLijn(regels[0], sep).map(h => h.replace(/"/g,'').toLowerCase().trim());
-
-  const zoekKol = (namen) => {
-    for (const n of namen) {
-      const idx = headers.findIndex(h => h.includes(n));
-      if (idx >= 0) return idx;
-    }
-    return -1;
-  };
-
-  const isBeurs = zoekKol(['beurs','exchange']) >= 0;
-  const ci = {};
-
-  if (isBeurs) {
-    // Transactieoverzicht formaat
-    ci.datum    = zoekKol(['datum','date']);
-    ci.product  = zoekKol(['product']);
-    ci.aantal   = zoekKol(['aantal','quantity']);
-    ci.koers    = zoekKol(['koers','price']);
-    ci.totaal   = zoekKol(['totaal','total']);
-  } else {
-    // Rekeningoverzicht — omschrijving bevat "Koop 16 @ 207,48 USD"
-    ci.datum       = zoekKol(['datum','date']);
-    ci.product     = zoekKol(['product','naam','fonds']);
-    ci.omschrijving = zoekKol(['omschrijving','description','type transactie']);
-    ci.mutatie     = zoekKol(['mutatie','bedrag','amount']);
-  }
-
-  const bestaandeHashes = new Set(transacties.map(t => hash(t)));
-  let toegevoegd = 0, overgeslagen = 0, fout = 0;
-  const nieuw = [];
-
-  for (let i = 1; i < regels.length; i++) {
-    try {
-      const c = parseLijn(regels[i], sep);
-      if (c.length < 4) continue;
-      const get = (idx) => idx >= 0 && idx < c.length ? c[idx].replace(/"/g,'').trim() : '';
-
-      let datum, ticker, type, aantal, prijs, bedrag, product;
-
-      if (isBeurs) {
-        datum   = parseDatum(get(ci.datum));
-        product = get(ci.product);
-        if (!product) { fout++; continue; }
-        ticker = productNaarTicker(product);
-
-        const aantalRaw = parseGetal(get(ci.aantal));
-        const koersRaw  = parseGetal(get(ci.koers));
-        const totaalRaw = parseGetal(get(ci.totaal));
-
-        if (aantalRaw === null) { fout++; continue; }
-        type   = aantalRaw > 0 ? 'koop' : 'verkoop';
-        aantal = Math.abs(aantalRaw);
-        prijs  = koersRaw ? Math.abs(koersRaw) : null;
-        bedrag = totaalRaw ? Math.abs(totaalRaw) : (prijs && aantal ? Math.round(prijs * aantal * 100) / 100 : 0);
-
-      } else {
-        datum   = parseDatum(get(ci.datum));
-        product = get(ci.product);
-        if (!product) { fout++; continue; }
-        ticker = productNaarTicker(product);
-
-        const omschr    = get(ci.omschrijving) || '';
-        const mutatieRaw = parseGetal(get(ci.mutatie));
-
-        // Type bepalen
-        if      (/koop/i.test(omschr))                  type = 'koop';
-        else if (/verkoop/i.test(omschr))               type = 'verkoop';
-        else if (/dividend|coupon/i.test(omschr))       type = 'dividend';
-        else if (/storting|deposit|inleg/i.test(omschr)) type = 'storting';
-        else if (/cash sweep|geldmarkt|sweep/i.test(omschr)) continue;
-        else if (/split|aanpassing|correctie|claimemissie/i.test(omschr)) continue;
-        else { fout++; continue; }
-
-        // Aantal & prijs uit "Koop 16 @ 207,48 USD"
-        const koopMatch = omschr.match(/(?:koop|verkoop)\s+([\d.,]+)\s*@\s*([\d.,]+)/i);
-        if (koopMatch) {
-          aantal = parseGetal(koopMatch[1]);
-          prijs  = parseGetal(koopMatch[2]);
-          bedrag = prijs && aantal ? Math.round(Math.abs(prijs * aantal) * 100) / 100 : 0;
-        } else if (mutatieRaw !== null) {
-          aantal = null; prijs = null;
-          bedrag = Math.abs(mutatieRaw);
-        } else { fout++; continue; }
-      }
-
-      if (!datum) { fout++; continue; }
-
-      const tr = {
-        id: 'imp_' + i + '_' + Date.now(),
-        datum, type, ticker,
-        aantal: aantal ? Math.round(aantal * 10000) / 10000 : '',
-        prijs:  prijs  ? Math.round(prijs  * 10000) / 10000 : '',
-        bedrag: Math.round((bedrag || 0) * 100) / 100,
-        notitie: 'DeGiro: ' + (product || '').substring(0, 35)
-      };
-
-      const h = hash(tr);
-      if (bestaandeHashes.has(h)) { overgeslagen++; continue; }
-      bestaandeHashes.add(h);
-      nieuw.push(tr);
-      toegevoegd++;
-
-    } catch (e) { fout++; }
-  }
-
-  if (nieuw.length > 0) {
-    transacties = [...nieuw, ...transacties];
-    transacties.sort((a, b) => b.datum.localeCompare(a.datum));
-    await slaOp();
-    rTr();
-  }
-
-  const kleur = toegevoegd > 0 ? 'igroen' : 'iteal';
-  resultEl.innerHTML = `
-    <div class="ibar ${kleur}" style="margin-top:8px">
-      <div style="font-weight:500;margin-bottom:4px"><i class="ti ti-check"></i> Import klaar — ${file.name}</div>
-      <div>Toegevoegd: <strong>${toegevoegd}</strong> · Duplicaat overgeslagen: <strong>${overgeslagen}</strong> · Onleesbaar: <strong>${fout}</strong></div>
-      <div style="margin-top:4px;font-size:11px;opacity:0.8">Volgende import van hetzelfde bestand is veilig — duplicaten worden opnieuw overgeslagen.</div>
-    </div>`;
-
-  document.getElementById('csvInput').value = '';
-}
-
-// ─── RENDER TRANSACTIES ───────────────────────────────────────────────────────
+// ═══ RENDER TRANSACTIES ════════════════════════════════════════════════════
 function rTr() {
-  const zoek      = (document.getElementById('f-zoek')  || {}).value || '';
-  const filterType = (document.getElementById('f-type') || {}).value || '';
-
+  const zoek = (document.getElementById('f-zoek') || {}).value || '';
+  const ft = (document.getElementById('f-type') || {}).value || '';
   const gefilterd = transacties.filter(t => {
-    if (filterType && t.type !== filterType) return false;
-    if (zoek && !(t.ticker  || '').toUpperCase().includes(zoek.toUpperCase())
+    if (ft && t.type !== ft) return false;
+    if (zoek && !(t.ticker || '').toUpperCase().includes(zoek.toUpperCase())
              && !(t.notitie || '').toLowerCase().includes(zoek.toLowerCase())) return false;
     return true;
   });
@@ -714,25 +721,19 @@ function rTr() {
   const teller = document.getElementById('tr-teller');
   if (teller) teller.textContent = `${transacties.length} totaal · ${gefilterd.length} getoond`;
 
-  const badgeClass = { koop:'bkoop', verkoop:'bverk', storting:'bstort', dividend:'bdiv' };
+  const bc = { koop:'bkoop', verkoop:'bverk', storting:'bstort', opname:'bverk', dividend:'bdiv', kosten:'bk' };
   const tbody = document.getElementById('trbody');
-
-  if (!gefilterd.length) {
-    tbody.innerHTML = '<tr><td colspan="7" class="lcel">Geen transacties</td></tr>';
-    return;
-  }
+  if (!gefilterd.length) { tbody.innerHTML = '<tr><td colspan="6" class="lcel">Geen transacties</td></tr>'; return; }
 
   tbody.innerHTML = gefilterd.map(t => {
     const b = parseFloat(t.bedrag) || 0;
-    const debet = ['koop','storting'].includes(t.type);
-    const bStr = '€' + b.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const pStr = t.prijs ? '€' + parseFloat(t.prijs).toFixed(4) : '—';
+    const debet = ['koop','opname','kosten'].includes(t.type) || b < 0;
+    const bStr = '€' + Math.abs(b).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return `<tr>
       <td style="font-size:11px;color:var(--text2)">${t.datum}</td>
-      <td><span class="badge ${badgeClass[t.type]||'bk'}">${t.type}</span></td>
+      <td><span class="badge ${bc[t.type] || 'bk'}">${t.type}</span></td>
       <td style="font-weight:500">${t.ticker || '—'}</td>
       <td style="font-size:11px">${t.aantal || '—'}</td>
-      <td style="font-size:11px;color:var(--text2)">${pStr}</td>
       <td style="color:${debet ? 'var(--verlies)' : 'var(--win)'}">${debet ? '-' : '+'}${bStr}</td>
       <td><button class="btn btn-danger btn-sm" onclick="verwijder('${t.id}')"><i class="ti ti-x"></i></button></td>
     </tr>`;
@@ -741,16 +742,11 @@ function rTr() {
 
 function exportTransacties() {
   const h = ['Datum','Type','Ticker','Aantal','Prijs','Bedrag','Notitie'];
-  const rows = transacties.map(t =>
-    [t.datum,t.type,t.ticker,t.aantal,t.prijs,t.bedrag,t.notitie]
-    .map(v => `"${v||''}"`)
-    .join(';')
-  );
+  const rows = transacties.map(t => [t.datum,t.type,t.ticker,t.aantal,t.prijs,t.bedrag,t.notitie].map(v => `"${v||''}"`).join(';'));
   const csv = [h.join(';'), ...rows].join('\n');
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'transacties.csv'; a.click();
+  const a = document.createElement('a'); a.href = url; a.download = 'transacties.csv'; a.click();
   URL.revokeObjectURL(url);
 }
 
@@ -761,84 +757,156 @@ async function clearAlles() {
   rTr();
 }
 
-// ─── PORTFOLIO ────────────────────────────────────────────────────────────────
+// ═══ POSITIES & CASH ═══════════════════════════════════════════════════════
 function berekenPosities() {
+  // Chronologisch oplopend verwerken (datum + tijd) voor correcte GAK (average cost)
+  const chrono = [...transacties].sort((a, b) =>
+    ((a.datum || '') + ' ' + (a.tijd || '')).localeCompare((b.datum || '') + ' ' + (b.tijd || '')));
   const pos = {};
-  transacties
-    .filter(t => t.type === 'koop' || t.type === 'verkoop')
-    .forEach(t => {
-      if (!t.ticker) return;
-      if (!pos[t.ticker]) pos[t.ticker] = { aantal: 0, kosten: 0 };
-      const n = parseFloat(t.aantal) || 0;
-      const b = parseFloat(t.bedrag) || 0;
-      if (t.type === 'koop')    { pos[t.ticker].aantal += n; pos[t.ticker].kosten += b; }
-      else                      { pos[t.ticker].aantal -= n; pos[t.ticker].kosten -= b; }
-    });
+  for (const t of chrono) {
+    if (t.type !== 'koop' && t.type !== 'verkoop') continue;
+    if (!t.ticker) continue;
+    if (!pos[t.ticker]) pos[t.ticker] = { aantal: 0, kosten: 0 };
+    const p = pos[t.ticker];
+    const n = parseFloat(t.aantal) || 0;
+    const b = parseFloat(t.bedrag) || 0;
+    if (t.type === 'koop') {
+      p.aantal += n; p.kosten += b;
+    } else {
+      if (p.aantal > 0) {
+        const gak = p.kosten / p.aantal;
+        p.kosten -= Math.min(n, p.aantal) * gak;
+      }
+      p.aantal -= n;
+    }
+  }
   return pos;
 }
 
+function berekenCash() {
+  let cash = 0;
+  for (const t of transacties) {
+    const b = parseFloat(t.bedrag) || 0;
+    switch (t.type) {
+      case 'storting': cash += b; break;
+      case 'opname':   cash -= b; break;
+      case 'dividend': cash += b; break;
+      case 'kosten':   cash -= b; break;
+      case 'koop':     cash -= b; break;
+      case 'verkoop':  cash += b; break;
+    }
+  }
+  return Math.round(cash * 100) / 100;
+}
+
+function berekenIngelegd() {
+  let ing = 0;
+  for (const t of transacties) {
+    const b = parseFloat(t.bedrag) || 0;
+    if (t.type === 'storting') ing += b;
+    if (t.type === 'opname') ing -= b;
+  }
+  return Math.round(ing * 100) / 100;
+}
+
+// ═══ WISSELKOERSEN ═════════════════════════════════════════════════════════
+async function haalFxOp() {
+  try {
+    const r = await fetch('https://api.frankfurter.app/latest?from=EUR');
+    const d = await r.json();
+    if (d && d.rates) fxRates = { EUR: 1, ...d.rates };
+  } catch (_) { /* hou oude rates */ }
+}
+
+function naarEur(bedrag, valuta) {
+  if (!valuta || valuta === 'EUR') return bedrag;
+  if (valuta === 'GBp') return bedrag / 100 / (fxRates['GBP'] || 1.17);
+  const rate = fxRates[valuta];
+  return rate ? bedrag / rate : bedrag;
+}
+
+// ═══ PORTFOLIO REFRESH ═════════════════════════════════════════════════════
 async function refreshData() {
   const btn = document.getElementById('rbtn');
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader"></i> Laden...'; }
-  document.getElementById('ptbody').innerHTML = '<tr><td colspan="11" class="lcel">Data ophalen via Finnhub...</td></tr>';
 
   const posities = berekenPosities();
-  const totaalGekocht = transacties
-    .filter(t => t.type === 'koop')
-    .reduce((s, t) => s + (parseFloat(t.bedrag) || 0), 0);
-  document.getElementById('pi').textContent = '€' + Math.round(totaalGekocht).toLocaleString('nl-NL');
+  const cash = berekenCash();
+  const ingelegd = berekenIngelegd();
+
+  document.getElementById('pi').textContent = '€' + Math.round(ingelegd).toLocaleString('nl-NL');
+
+  const open = Object.entries(posities)
+    .filter(([_, p]) => p.aantal > 0.001)
+    .map(([ticker, p]) => {
+      const info = PRODUCT_MAP.find(e => e.ticker === ticker) || { naam: ticker, valuta: 'USD' };
+      return { ticker, naam: info.naam || ticker, valuta: info.valuta || 'USD',
+               aantalPos: Math.round(p.aantal * 1000) / 1000,
+               kostbasis: Math.round(p.kosten * 100) / 100,
+               gak: p.aantal ? Math.round(p.kosten / p.aantal * 100) / 100 : 0 };
+    })
+    .sort((a, b) => b.kostbasis - a.kostbasis);
+
+  if (!open.length && cash === 0) {
+    document.getElementById('ptbody').innerHTML = '<tr><td colspan="11" class="lcel">Importeer eerst je DeGiro CSV via het tabblad Transacties</td></tr>';
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-refresh"></i> Vernieuwen'; }
+    return;
+  }
+
+  document.getElementById('pts').textContent = 'Koersen ophalen...';
+  await haalFxOp();
 
   const results = [];
   let totaalWaarde = 0, totaalInv = 0;
 
-  for (const p of PORTFOLIO_DEF) {
+  for (const p of open) {
+    let koersEur = 0, fwdpe = null, peg = null, roe = null;
     try {
-      await new Promise(r => setTimeout(r, 280)); // rate limit ~60/min
-
-      const [qR, fR] = await Promise.all([
-        fetch(`/api/quote?symbol=${p.ticker}`),
-        fetch(`/api/metrics?symbol=${p.ticker}`)
-      ]);
+      await new Promise(r => setTimeout(r, 250));
+      const qR = await fetch(`/api/quote?symbol=${encodeURIComponent(p.ticker)}`);
       const q = await qR.json();
-      const f = await fR.json();
-      const m = f.metric || {};
+      if (q && q.c) koersEur = Math.round(naarEur(q.c, q.currency) * 100) / 100;
 
-      const koers = q.c || 0;
-      const pos   = posities[p.ticker] || { aantal: 0, kosten: 0 };
-      const aantalPos  = Math.round(pos.aantal * 1000) / 1000;
-      const gak        = aantalPos > 0 ? Math.round(pos.kosten / pos.aantal * 100) / 100 : 0;
-      const waarde     = aantalPos && koers ? Math.round(koers * aantalPos * 100) / 100 : 0;
-      const investering = aantalPos && gak  ? Math.round(gak   * aantalPos * 100) / 100 : 0;
-      const res    = Math.round((waarde - investering) * 100) / 100;
-      const resPct = investering ? Math.round(res / investering * 10000) / 100 : 0;
+      // Metrics alleen voor US tickers (Finnhub gratis tier)
+      if (!p.ticker.includes('.')) {
+        const fR = await fetch(`/api/metrics?symbol=${encodeURIComponent(p.ticker)}`);
+        const f = await fR.json();
+        const m = (f && f.metric) || {};
+        fwdpe = m['peNormalizedAnnual'] || null;
+        peg = m['pegAnnual'] || null;
+        roe = m['roeAnnual'] ? Math.round(m['roeAnnual']) : null;
+      }
+    } catch (_) {}
 
-      totaalWaarde += waarde;
-      totaalInv    += investering;
+    const waarde = Math.round(koersEur * p.aantalPos * 100) / 100;
+    const res = Math.round((waarde - p.kostbasis) * 100) / 100;
+    totaalWaarde += waarde;
+    totaalInv += p.kostbasis;
 
-      results.push({
-        ...p, koers, aantalPos, gak, waarde, investering, res, resPct,
-        fwdpe:  m['peNormalizedAnnual'] || null,
-        peg:    m['pegAnnual']          || null,
-        roe:    m['roeAnnual']   ? Math.round(m['roeAnnual'])   : null,
-        margin: m['operatingMarginAnnual'] ? Math.round(m['operatingMarginAnnual']) : null
-      });
-    } catch (e) {
-      results.push({ ...p, koers:0, aantalPos:0, gak:0, waarde:0, investering:0, res:0, resPct:0, fwdpe:null, peg:null, roe:null, margin:null });
-    }
+    results.push({ ...p, koers: koersEur, waarde, res, fwdpe, peg, roe,
+                   actie: ACTIE_MAP[p.ticker] || 'Monitor' });
   }
 
+  // Cash als positie toevoegen
+  results.push({ ticker: 'CASH', naam: 'Cash (stortingen + dividend - aankopen)', valuta: 'EUR',
+                 aantalPos: '', gak: 0, kostbasis: 0, koers: 0,
+                 waarde: cash, res: 0, fwdpe: null, peg: null, roe: null,
+                 actie: '', isCash: true });
+  totaalWaarde += cash;
+
   portfolioData = results;
-  rPortfolio(results, totaalWaarde, totaalInv);
-  slaKoersenOp(results, totaalWaarde, totaalInv);
+  rPortfolio(results, totaalWaarde, ingelegd);
+  slaKoersenOp(results, totaalWaarde, ingelegd);
+
   if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-refresh"></i> Vernieuwen'; }
   document.getElementById('rtime').textContent = 'Geladen ' + new Date().toLocaleTimeString('nl-NL');
 }
 
-function rPortfolio(data, tw, ti) {
-  const res = Math.round((tw - ti) * 100) / 100;
-  const pct = ti ? Math.round(res / ti * 10000) / 100 : 0;
+function rPortfolio(data, totaalWaarde, ingelegd) {
+  const res = Math.round((totaalWaarde - ingelegd) * 100) / 100;
+  const pct = ingelegd ? Math.round(res / ingelegd * 10000) / 100 : 0;
 
-  document.getElementById('pw').textContent = '€' + Math.round(tw).toLocaleString('nl-NL');
+  document.getElementById('pw').textContent = '€' + Math.round(totaalWaarde).toLocaleString('nl-NL');
   const prEl = document.getElementById('pr');
   prEl.textContent = (res >= 0 ? '+' : '') + Math.round(res).toLocaleString('nl-NL') + '€';
   prEl.className = 'mval ' + (res >= 0 ? 'win' : 'verlies');
@@ -847,73 +915,80 @@ function rPortfolio(data, tw, ti) {
   ppEl.className = 'mval ' + (pct >= 0 ? 'win' : 'verlies');
 
   const fv = (v, d = 1) => v != null ? v.toFixed(d) : '—';
-  const kl = (v, d, bes = 'laag') => {
+  const kl = (v, drempel, bes = 'laag') => {
     if (v == null) return '';
-    const ok = bes === 'laag' ? v <= d : v >= d;
+    const ok = bes === 'laag' ? v <= drempel : v >= drempel;
     return `color:${ok ? 'var(--win)' : 'var(--verlies)'}`;
   };
 
   document.getElementById('ptbody').innerHTML = data.map(p => {
-    const wStr   = p.waarde ? '€' + Math.round(p.waarde).toLocaleString('nl-NL') : '—';
-    const gakStr = p.gak   ? '€' + p.gak.toFixed(2) : '—';
-    const rStr   = p.res   ? (p.res >= 0 ? '+' : '') + Math.round(p.res).toLocaleString('nl-NL') + '€' : '—';
-    const rCl    = p.res > 0 ? 'win' : p.res < 0 ? 'verlies' : '';
-    const gew    = tw && p.waarde ? (p.waarde / tw * 100).toFixed(1) + '%' : '—';
-    const actKl  = (p.actie || '').includes('Nooit') ? 'var(--win)' : 'var(--text2)';
+    if (p.isCash) {
+      const cl = p.waarde >= 0 ? '' : 'style="color:var(--verlies)"';
+      return `<tr class="cashrij">
+        <td><strong>💶 CASH</strong><div style="font-size:10px;color:var(--text2);font-weight:400">${p.naam}</div></td>
+        <td>—</td><td>—</td><td>—</td>
+        <td ${cl}>€${Math.round(p.waarde).toLocaleString('nl-NL')}</td>
+        <td>—</td>
+        <td>${totaalWaarde ? (p.waarde / totaalWaarde * 100).toFixed(1) + '%' : '—'}</td>
+        <td>—</td><td>—</td><td>—</td><td style="font-size:11px;color:var(--text2)">Buffer</td>
+      </tr>`;
+    }
+    const wStr = p.waarde ? '€' + Math.round(p.waarde).toLocaleString('nl-NL') : '—';
+    const kStr = p.koers ? '€' + p.koers.toFixed(2) : '—';
+    const gakStr = p.gak ? '€' + p.gak.toFixed(2) : '—';
+    const rStr = p.koers ? (p.res >= 0 ? '+' : '') + Math.round(p.res).toLocaleString('nl-NL') + '€' : '—';
+    const rCl = !p.koers ? '' : p.res > 0 ? 'win' : p.res < 0 ? 'verlies' : '';
+    const gew = totaalWaarde && p.waarde ? (p.waarde / totaalWaarde * 100).toFixed(1) + '%' : '—';
+    const actKl = (p.actie || '').includes('Nooit') ? 'var(--win)'
+                : (p.actie || '').includes('Verkoop') ? 'var(--verlies)' : 'var(--text2)';
     return `<tr>
-      <td><strong>${p.ticker.replace('.AS','')}</strong><div style="font-size:10px;color:var(--text2)">${p.naam}</div></td>
-      <td style="font-size:11px">${p.aantalPos || '—'}</td>
+      <td><strong>${p.ticker.replace('.AS','').replace('.L','')}</strong><div style="font-size:10px;color:var(--text2)">${p.naam}</div></td>
+      <td style="font-size:11px">${p.aantalPos}</td>
       <td style="font-size:11px;color:var(--text2)">${gakStr}</td>
+      <td style="font-size:11px">${kStr}</td>
       <td>${wStr}</td>
       <td class="${rCl}">${rStr}</td>
       <td>${gew}</td>
       <td style="${kl(p.fwdpe, 25)}">${fv(p.fwdpe)}</td>
       <td style="${kl(p.peg, 2)}">${fv(p.peg, 2)}</td>
-      <td style="${kl(p.roe, 20, 'hoog')}">${p.roe  != null ? p.roe   + '%' : '—'}</td>
-      <td style="${kl(p.margin, 15, 'hoog')}">${p.margin != null ? p.margin + '%' : '—'}</td>
-      <td style="font-size:11px;color:${actKl}">${p.actie || 'Monitor'}</td>
+      <td style="${kl(p.roe, 20, 'hoog')}">${p.roe != null ? p.roe + '%' : '—'}</td>
+      <td style="font-size:11px;color:${actKl}">${p.actie || ''}</td>
     </tr>`;
   }).join('');
 
-  document.getElementById('pts').textContent = 'Actueel · ' + new Date().toLocaleTimeString('nl-NL', {hour:'2-digit',minute:'2-digit'});
+  document.getElementById('pts').textContent = 'Actueel · ' + new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
 }
 
 function sP(k) {
   sortPortDir[k] = !sortPortDir[k];
-  const tw = portfolioData.reduce((s, p) => s + p.waarde, 0);
-  const ti = portfolioData.reduce((s, p) => s + p.investering, 0);
-  portfolioData.sort((a, b) => {
+  const cash = portfolioData.find(p => p.isCash);
+  const rest = portfolioData.filter(p => !p.isCash);
+  rest.sort((a, b) => {
     const av = a[k] ?? Infinity, bv = b[k] ?? Infinity;
     return sortPortDir[k] ? av - bv : bv - av;
   });
-  rPortfolio(portfolioData, tw, ti);
+  portfolioData = cash ? [...rest, cash] : rest;
+  const tw = portfolioData.reduce((s, p) => s + (p.waarde || 0), 0);
+  rPortfolio(portfolioData, tw, berekenIngelegd());
 }
 
-// ─── WATCHLIST ────────────────────────────────────────────────────────────────
+// ═══ WATCHLIST ═════════════════════════════════════════════════════════════
 function rWatchlist() {
   const fv = (v, d = 1) => v != null ? v.toFixed(d) : '—';
-  const gr = (v) => v == null ? '—'
-    : `<span style="color:${v > 0 ? 'var(--win)' : 'var(--verlies)'}">${v > 0 ? '+' : ''}${v}%</span>`;
-
+  const gr = (v) => v == null ? '—' : `<span style="color:${v > 0 ? 'var(--win)' : 'var(--verlies)'}">${v > 0 ? '+' : ''}${v}%</span>`;
   document.getElementById('wtbody').innerHTML = watchData.map(w => {
     const cb = w.labels.map(l => `<span class="badge bk" style="margin-right:2px">${l}</span>`).join('');
-    const sb = w.status === 'koop'
-      ? '<span class="badge bg">Volgende koop</span>'
-      : '<span class="badge bk">Later</span>';
-    const ps = w.peg != null && w.peg <= 1
-      ? 'color:var(--win);font-weight:500'
-      : w.peg != null && w.peg <= 1.5 ? 'color:var(--warn-text)' : '';
+    const sb = w.status === 'koop' ? '<span class="badge bg">Volgende koop</span>' : '<span class="badge bk">Later</span>';
+    const ps = w.peg != null && w.peg <= 1 ? 'color:var(--win);font-weight:500' : w.peg != null && w.peg <= 1.5 ? 'color:var(--warn-text)' : '';
     return `<tr>
-      <td><strong>${w.ticker}</strong></td>
-      <td>${w.naam}</td>
+      <td><strong>${w.ticker}</strong></td><td>${w.naam}</td>
       <td style="color:var(--text2);font-size:11px">${w.cap}</td>
       <td>${fv(w.fwdpe)}</td>
       <td style="${ps}">${fv(w.peg, 2)}</td>
-      <td>${w.roe   != null ? w.roe   + '%' : '—'}</td>
+      <td>${w.roe != null ? w.roe + '%' : '—'}</td>
       <td>${w.margin != null ? w.margin + '%' : '—'}</td>
       <td>${gr(w.epsy)}</td>
-      <td>${cb}</td>
-      <td>${sb}</td>
+      <td>${cb}</td><td>${sb}</td>
     </tr>`;
   }).join('');
 }
@@ -927,7 +1002,7 @@ function sW(k) {
   rWatchlist();
 }
 
-// ─── NAVIGATIE ────────────────────────────────────────────────────────────────
+// ═══ NAVIGATIE ═════════════════════════════════════════════════════════════
 function toonP(id, btn) {
   document.querySelectorAll('.pagina').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -935,7 +1010,6 @@ function toonP(id, btn) {
   btn.classList.add('active');
 }
 
-// ─── START ────────────────────────────────────────────────────────────────────
 init();
 </script>
 </body>
