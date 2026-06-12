@@ -1,7 +1,3 @@
 {
-  "functions": {
-    "api/quote.js": { "maxDuration": 10 },
-    "api/metrics.js": { "maxDuration": 10 },
-    "api/kv.js": { "maxDuration": 10 }
-  }
+  "$schema": "https://openapi.vercel.sh/vercel.json"
 }
