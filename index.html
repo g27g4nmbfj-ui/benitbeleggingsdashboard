@@ -391,6 +391,30 @@ let kvOk = false;
 async function init() {
   await laadTransacties();
   rWatchlist();
+  // Toon gecachede koersen meteen — geen witte pagina na refresh
+  laadGecachedeKoersen();
+  // Haal daarna verse koersen op (niet blokkeren)
+  refreshData();
+}
+
+// Sla portfolioData op in localStorage zodat het meteen zichtbaar is bij reload
+function slaKoersenOp(data, tw, ti) {
+  try {
+    localStorage.setItem('beleggen_koersen_v4', JSON.stringify({ data, tw, ti, ts: Date.now() }));
+  } catch (_) {}
+}
+
+function laadGecachedeKoersen() {
+  try {
+    const raw = localStorage.getItem('beleggen_koersen_v4');
+    if (!raw) return;
+    const { data, tw, ti, ts } = JSON.parse(raw);
+    if (!data || !data.length) return;
+    portfolioData = data;
+    rPortfolio(data, tw, ti);
+    const minuten = Math.round((Date.now() - ts) / 60000);
+    document.getElementById('pts').textContent = `Cache · ${minuten}m geleden — koersen worden ververst...`;
+  } catch (_) {}
 }
 
 // ─── KV OPSLAG ───────────────────────────────────────────────────────────────
@@ -755,8 +779,7 @@ function berekenPosities() {
 
 async function refreshData() {
   const btn = document.getElementById('rbtn');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="ti ti-loader"></i> Laden...';
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader"></i> Laden...'; }
   document.getElementById('ptbody').innerHTML = '<tr><td colspan="11" class="lcel">Data ophalen via Finnhub...</td></tr>';
 
   const posities = berekenPosities();
@@ -806,8 +829,8 @@ async function refreshData() {
 
   portfolioData = results;
   rPortfolio(results, totaalWaarde, totaalInv);
-  btn.disabled = false;
-  btn.innerHTML = '<i class="ti ti-refresh"></i> Vernieuwen';
+  slaKoersenOp(results, totaalWaarde, totaalInv);
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-refresh"></i> Vernieuwen'; }
   document.getElementById('rtime').textContent = 'Geladen ' + new Date().toLocaleTimeString('nl-NL');
 }
 
