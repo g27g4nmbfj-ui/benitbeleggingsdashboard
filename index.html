@@ -761,9 +761,9 @@ function berekenIngelegd() {
 // ═══ WISSELKOERSEN ═════════════════════════════════════════════════════════
 async function haalFxOp() {
   try {
-    const r = await fetch('https://api.frankfurter.app/latest?from=EUR');
+    const r = await fetch('/api/fx');
     const d = await r.json();
-    if (d && d.rates) fxRates = { EUR: 1, ...d.rates };
+    if (d && d.USD) fxRates = d;
   } catch (_) {}
 }
 function naarEur(bedrag, valuta) {
