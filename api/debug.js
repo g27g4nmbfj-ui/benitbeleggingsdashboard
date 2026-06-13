@@ -1,23 +1,34 @@
-// Diagnose: test welke stable endpoints forward P/E geven
+// Diagnose forward P/E: bekijk analyst-estimates ruw voor MSFT
+// Finviz fwd P/E voor MSFT = 20.09, prijs ~390 → impliceert forward EPS ~19.4
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   const symbol = req.query.symbol || 'MSFT';
   const key = process.env.FMP_API_KEY || process.env.FMP_KEY;
-  const out = { symbol, keyAanwezig: !!key, resultaten: {} };
-  if (!key) return res.status(200).json(out);
+  if (!key) return res.status(200).json({ error: 'geen key' });
 
-  const endpoints = {
-    analyst_estimates: `https://financialmodelingprep.com/stable/analyst-estimates?symbol=${symbol}&period=annual&limit=1&apikey=${key}`,
-    ratios_snapshot:   `https://financialmodelingprep.com/stable/ratios?symbol=${symbol}&limit=1&apikey=${key}`,
-    grade:             `https://financialmodelingprep.com/stable/grades-consensus?symbol=${symbol}&apikey=${key}`
-  };
-  for (const [naam, url] of Object.entries(endpoints)) {
-    try {
-      const r = await fetch(url);
-      const t = await r.text();
-      let data; try { data = JSON.parse(t); } catch { data = t.substring(0, 150); }
-      out.resultaten[naam] = { status: r.status, data: Array.isArray(data) ? data[0] : data };
-    } catch (e) { out.resultaten[naam] = { fout: e.message }; }
+  const out = { symbol };
+  async function jget(url) {
+    const r = await fetch(url); const t = await r.text();
+    try { return { status: r.status, data: JSON.parse(t) }; } catch { return { status: r.status, raw: t.substring(0,150) }; }
+  }
+  const base = 'https://financialmodelingprep.com/stable';
+  const sym = encodeURIComponent(symbol);
+
+  const q = await jget(`${base}/quote?symbol=${sym}&apikey=${key}`);
+  out.prijs = Array.isArray(q.data) ? q.data[0]?.price : null;
+  out.eps_ttm = Array.isArray(q.data) ? q.data[0]?.eps : null;
+
+  // Analyst estimates — meerdere jaren, toon eps velden
+  const est = await jget(`${base}/analyst-estimates?symbol=${sym}&period=annual&page=0&limit=5&apikey=${key}`);
+  out.estimates_status = est.status;
+  if (Array.isArray(est.data)) {
+    out.estimates = est.data.map(e => ({
+      datum: e.date,
+      epsAvg: e.epsAvg, epsLow: e.epsLow, epsHigh: e.epsHigh,
+      fwdPE_als_dit_klopt: out.prijs && e.epsAvg ? +(out.prijs / e.epsAvg).toFixed(1) : null
+    }));
+  } else {
+    out.estimates_raw = est;
   }
   res.status(200).json(out);
 }
