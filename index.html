@@ -8,17 +8,20 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* Vaste lichte (witte) achtergrond — geen dark mode meer */
+  /* Finviz-stijl: donkere achtergrond, hun exacte kleuren */
   :root {
-    --bg: #ffffff; --bg2: #f7f7f6; --bg3: #efeeec;
-    --text: #1a1a1a; --text2: #6b6b6b; --text3: #9a9a9a;
-    --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.16);
-    --win: #1f7a33; --verlies: #c0392b; --neutraal: #b8860b;
-    --info-bg: #eef4fb; --info-text: #1d4e89; --info-border: #c4dcf3;
-    --warn-bg: #fdf4e3; --warn-text: #7a5012; --warn-border: #f3d79a;
-    --ok-bg: #eef6e6;  --ok-text: #2d6a18;  --ok-border: #c5e0a8;
-    --err-bg: #fbedec; --err-text: #b23a2e; --err-border: #f1c4bf;
-    --r: 8px; --rl: 12px;
+    --bg: #1b1b1b; --bg2: #26282f; --bg3: #151515;
+    --text: #d5d5d5; --text2: #9a9a9a; --text3: #707070;
+    --border: #3a3a3a; --border2: #4a4a4a;
+    --win: #54a854; --verlies: #e35d5d; --neutraal: #d0a850;
+    --ticker: #4a90d9;
+    --header-bg: #323843;
+    --rij-even: #1e2027; --rij-oneven: #24262d;
+    --info-bg: #1e2a38; --info-text: #7fb3e0; --info-border: #2f4761;
+    --warn-bg: #322811; --warn-text: #d0a850; --warn-border: #5c4a1f;
+    --ok-bg: #1c3320;  --ok-text: #54a854;  --ok-border: #2f5a32;
+    --err-bg: #3a1f1f; --err-text: #e35d5d; --err-border: #5c2f2f;
+    --r: 6px; --rl: 8px;
   }
 
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; color: var(--text); background: var(--bg3); min-height: 100vh; }
@@ -32,7 +35,7 @@
   .tabs { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
   .tab { padding: 7px 14px; border: 0.5px solid var(--border); border-radius: var(--r); background: var(--bg); cursor: pointer; font-size: 13px; color: var(--text2); display: flex; align-items: center; gap: 6px; }
   .tab:hover { background: var(--bg2); }
-  .tab.active { background: var(--text); color: #fff; font-weight: 500; border-color: var(--text); }
+  .tab.active { background: var(--header-bg); color: #fff; font-weight: 500; border-color: var(--border2); }
 
   .pagina { display: none; }
   .pagina.active { display: block; }
@@ -55,16 +58,27 @@
   .igroen { background: var(--ok-bg); color: var(--ok-text); border-color: var(--ok-border); }
   .idanger { background: var(--err-bg); color: var(--err-text); border-color: var(--err-border); }
 
+  /* Finviz-tabel: compact, blauwgrijze header, afwisselende rijen */
   .tscroll { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  th { padding: 7px 10px; text-align: left; color: var(--text2); font-weight: 500; border-bottom: 0.5px solid var(--border); white-space: nowrap; font-size: 11px; background: var(--bg2); }
+  th { padding: 5px 9px; text-align: right; color: #c8cdd5; font-weight: 600; border-bottom: 1px solid var(--border); white-space: nowrap; font-size: 11px; background: var(--header-bg); }
+  th:first-child, th:nth-child(2) { text-align: left; }
   th.sort { cursor: pointer; user-select: none; }
-  th.sort:hover { color: var(--text); }
-  td { padding: 7px 10px; border-bottom: 0.5px solid var(--border); white-space: nowrap; }
+  th.sort:hover { color: #fff; }
+  td { padding: 5px 9px; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: right; }
+  td:first-child, td:nth-child(2) { text-align: left; }
+  tbody tr:nth-child(even) td { background: var(--rij-even); }
+  tbody tr:nth-child(odd) td { background: var(--rij-oneven); }
   tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--bg2); }
+  tbody tr:hover td { background: #2d3038; }
   .lcel { text-align: center; color: var(--text2); padding: 24px; font-size: 12px; }
-  tr.cashrij td { background: #fafaf8; font-weight: 500; }
+  tr.cashrij td { background: #20242c !important; font-weight: 600; }
+  .tkr { color: var(--ticker); font-weight: 600; }
+
+  /* Finviz cijferkleur: groen = voldoet aan criterium, rood = niet */
+  .g { color: var(--win); }
+  .r { color: var(--verlies); }
+  .n { color: var(--text); }
 
   .badge { display: inline-block; padding: 2px 7px; border-radius: var(--r); font-size: 10px; font-weight: 500; }
   .bt  { background: var(--info-bg); color: var(--info-text); }
@@ -75,20 +89,15 @@
   .bdiv   { background: var(--warn-bg); color: var(--warn-text); }
   .bstort { background: var(--info-bg); color: var(--info-text); }
 
-  /* Delta pill: groen = voldoet aan regel, rood = niet, grijs = onbekend */
-  .delta { display:inline-block; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:600; }
-  .d-ok  { background: var(--ok-bg); color: var(--ok-text); }
-  .d-nok { background: var(--err-bg); color: var(--err-text); }
-  .d-na  { background: var(--bg3); color: var(--text3); }
-
-  .btn { padding: 6px 14px; border: 0.5px solid var(--border2); border-radius: var(--r); background: var(--bg); cursor: pointer; font-size: 13px; color: var(--text); display: inline-flex; align-items: center; gap: 6px; }
-  .btn:hover { background: var(--bg2); }
+  .btn { padding: 6px 14px; border: 0.5px solid var(--border2); border-radius: var(--r); background: var(--bg2); cursor: pointer; font-size: 13px; color: var(--text); display: inline-flex; align-items: center; gap: 6px; }
+  .btn:hover { background: #2d3038; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-prim { background: var(--text); color: #fff; border-color: var(--text); }
+  .btn-prim { background: var(--ticker); color: #fff; border-color: var(--ticker); }
   .btn-prim:hover { opacity: 0.85; }
   .btn-sm { padding: 3px 8px; font-size: 11px; }
   .btn-danger { color: var(--verlies); border-color: var(--err-border); }
   .btn-danger:hover { background: var(--err-bg); }
+
 
   .flabel { font-size: 11px; color: var(--text2); margin-bottom: 4px; display: block; }
   input, select { width: 100%; padding: 7px 10px; border: 0.5px solid var(--border2); border-radius: var(--r); background: var(--bg); font-size: 13px; color: var(--text); font-family: inherit; }
@@ -152,7 +161,7 @@
     </div>
     <div class="ibar iteal">
       <strong>Criteria-check</strong> per kolom t.o.v. jouw regels: Fwd P/E ≤25 · PEG ≤2 · ROE ≥20% · Op.Margin ≥15%.
-      <span class="delta d-ok">groen</span> = voldoet, <span class="delta d-nok">rood</span> = buiten grens. Bedragen in EUR.
+      <span class="g">groen</span> = voldoet, <span class="r">rood</span> = buiten grens. Bedragen in EUR.
     </div>
     <div class="card">
       <div class="card-hdr">
@@ -493,14 +502,16 @@ function hashTr(t) {
   return `${d}|${tk}|${tp}|${a.toFixed(4)}|${b.toFixed(2)}`;
 }
 
-// Delta-pill: voldoet waarde aan afgesproken criterium?
-function deltaPill(waarde, crit) {
-  if (waarde == null || crit == null) return '<span class="delta d-na">—</span>';
+// Finviz-stijl: kleur de waarde zelf groen (voldoet) of rood (niet).
+// Geeft de waarde-tekst terug met de juiste class + een title-tooltip met de grens.
+function kleurWaarde(waarde, crit, suffix = '', decimalen = 1) {
+  if (waarde == null) return '<span class="n">—</span>';
+  const tekst = (decimalen === 0 ? Math.round(waarde) : waarde.toFixed(decimalen)) + suffix;
+  if (!crit) return `<span class="n">${tekst}</span>`;
   const ok = crit.richting === 'max' ? waarde <= crit.grens : waarde >= crit.grens;
-  const teken = crit.richting === 'max'
-    ? (ok ? '≤' : '>') + crit.grens
-    : (ok ? '≥' : '<') + crit.grens;
-  return `<span class="delta ${ok ? 'd-ok' : 'd-nok'}">${teken}</span>`;
+  const grensTxt = (crit.richting === 'max' ? '≤' : '≥') + crit.grens + suffix;
+  const titel = ok ? `voldoet (regel: ${grensTxt})` : `buiten grens (regel: ${grensTxt})`;
+  return `<span class="${ok ? 'g' : 'r'}" title="${titel}">${tekst}</span>`;
 }
 
 // ═══ DEGIRO CSV IMPORT ═════════════════════════════════════════════════════
@@ -857,39 +868,38 @@ function rPortfolio(data, totaalWaarde, ingelegd) {
 
   document.getElementById('ptbody').innerHTML = data.map(p => {
     if (p.isCash) {
-      const cl = p.waarde >= 0 ? '' : 'style="color:var(--verlies)"';
+      const cl = p.waarde >= 0 ? 'n' : 'r';
       return `<tr class="cashrij">
-        <td><strong>CASH</strong><div style="font-size:10px;color:var(--text2);font-weight:400">${p.naam}</div></td>
+        <td><span class="tkr">CASH</span><div style="font-size:10px;color:var(--text2);font-weight:400">${p.naam}</div></td>
         <td>—</td><td>—</td><td>—</td>
-        <td ${cl}>€${Math.round(p.waarde).toLocaleString('nl-NL')}</td>
+        <td class="${cl}">€${Math.round(p.waarde).toLocaleString('nl-NL')}</td>
         <td>—</td>
         <td>${totaalWaarde ? (p.waarde / totaalWaarde * 100).toFixed(1) + '%' : '—'}</td>
-        <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td style="font-size:11px;color:var(--text2)">Buffer</td>
+        <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td style="color:var(--text2)">Buffer</td>
       </tr>`;
     }
     const wStr = p.waarde ? '€' + Math.round(p.waarde).toLocaleString('nl-NL') : '—';
     const kStr = p.koers ? '€' + p.koers.toFixed(2) : '—';
     const gakStr = p.gak ? '€' + p.gak.toFixed(2) : '—';
     const rStr = p.koers ? (p.res >= 0 ? '+' : '') + Math.round(p.res).toLocaleString('nl-NL') + '€' : '—';
-    const rCl = !p.koers ? '' : p.res > 0 ? 'win' : p.res < 0 ? 'verlies' : '';
+    const rCl = !p.koers ? 'n' : p.res > 0 ? 'g' : p.res < 0 ? 'r' : 'n';
     const gew = totaalWaarde && p.waarde ? (p.waarde / totaalWaarde * 100).toFixed(1) + '%' : '—';
     const actKl = (p.actie || '').includes('Nooit') ? 'var(--win)' : (p.actie || '').includes('Verkoop') ? 'var(--verlies)' : 'var(--text2)';
 
-    // P/E TTM heeft geen harde regel maar tonen we; Fwd P/E, PEG, ROE, Margin krijgen delta
     return `<tr>
-      <td><strong>${p.ticker.replace('.AS','').replace('.L','')}</strong><div style="font-size:10px;color:var(--text2)">${p.naam}</div></td>
-      <td style="font-size:11px">${p.aantalPos}</td>
-      <td style="font-size:11px;color:var(--text2)">${gakStr}</td>
-      <td style="font-size:11px">${kStr}</td>
+      <td><span class="tkr">${p.ticker.replace('.AS','').replace('.L','')}</span><div style="font-size:10px;color:var(--text2)">${p.naam}</div></td>
+      <td>${p.aantalPos}</td>
+      <td style="color:var(--text2)">${gakStr}</td>
+      <td>${kStr}</td>
       <td>${wStr}</td>
       <td class="${rCl}">${rStr}</td>
       <td>${gew}</td>
-      <td>${fv(p.trailingPE)}</td>
-      <td>${fv(p.forwardPE)} ${deltaPill(p.forwardPE, CRITERIA.forwardPE)}</td>
-      <td>${fv(p.peg, 2)} ${deltaPill(p.peg, CRITERIA.peg)}</td>
-      <td>${p.roe != null ? p.roe + '%' : '—'} ${deltaPill(p.roe, CRITERIA.roe)}</td>
-      <td>${p.margin != null ? p.margin + '%' : '—'} ${deltaPill(p.margin, CRITERIA.margin)}</td>
-      <td style="font-size:11px;color:${actKl}">${p.actie || ''}</td>
+      <td><span class="n">${fv(p.trailingPE)}</span></td>
+      <td>${kleurWaarde(p.forwardPE, CRITERIA.forwardPE)}</td>
+      <td>${kleurWaarde(p.peg, CRITERIA.peg, '', 2)}</td>
+      <td>${kleurWaarde(p.roe, CRITERIA.roe, '%', 0)}</td>
+      <td>${kleurWaarde(p.margin, CRITERIA.margin, '%', 0)}</td>
+      <td style="color:${actKl}">${p.actie || ''}</td>
     </tr>`;
   }).join('');
 
@@ -912,12 +922,12 @@ function rWatchlist() {
   document.getElementById('wtbody').innerHTML = watchData.map(w => {
     const sb = w.status === 'koop' ? '<span class="badge bg">Volgende koop</span>' : '<span class="badge bk">Later</span>';
     return `<tr>
-      <td><strong>${w.ticker}</strong></td><td>${w.naam}</td>
-      <td>${fv(w.trailingPE)}</td>
-      <td>${fv(w.forwardPE)} ${deltaPill(w.forwardPE, CRITERIA.forwardPE)}</td>
-      <td>${fv(w.peg, 2)} ${deltaPill(w.peg, CRITERIA.peg)}</td>
-      <td>${w.roe != null ? w.roe + '%' : '—'} ${deltaPill(w.roe, CRITERIA.roe)}</td>
-      <td>${w.margin != null ? w.margin + '%' : '—'} ${deltaPill(w.margin, CRITERIA.margin)}</td>
+      <td><span class="tkr">${w.ticker}</span></td><td>${w.naam}</td>
+      <td><span class="n">${fv(w.trailingPE)}</span></td>
+      <td>${kleurWaarde(w.forwardPE, CRITERIA.forwardPE)}</td>
+      <td>${kleurWaarde(w.peg, CRITERIA.peg, '', 2)}</td>
+      <td>${kleurWaarde(w.roe, CRITERIA.roe, '%', 0)}</td>
+      <td>${kleurWaarde(w.margin, CRITERIA.margin, '%', 0)}</td>
       <td>${sb}</td>
     </tr>`;
   }).join('');
