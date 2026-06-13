@@ -158,7 +158,7 @@
   <!-- PORTFOLIO -->
   <div id="portfolio" class="pagina active">
     <div class="metrics">
-      <div class="metric"><div class="mlbl">Ingelegd (netto)</div><div class="mval" id="pi">—</div></div>
+      <div class="metric"><div class="mlbl">Totaal geïnvesteerd</div><div class="mval" id="pi">—</div></div>
       <div class="metric"><div class="mlbl">Huidige waarde</div><div class="mval" id="pw">—</div></div>
       <div class="metric"><div class="mlbl">Resultaat</div><div class="mval" id="pr">—</div></div>
       <div class="metric"><div class="mlbl">Rendement</div><div class="mval" id="pp">—</div></div>
@@ -674,7 +674,7 @@ async function importCSV(file) {
   const regels = tekst.split(/\r?\n/).filter(r => r.trim().length > 0);
   if (regels.length < 2) { resultEl.innerHTML = '<div class="ibar idanger" style="margin-top:8px">Leeg bestand.</div>'; return; }
 
-  const I = { datum: 0, tijd: 1, product: 3, omschr: 5, fx: 6, valuta: 7, bedrag: 8, orderid: 11 };
+  const I = { datum: 0, tijd: 1, product: 3, omschr: 5, fx: 6, valuta: 7, bedrag: 8, saldoVal: 9, saldo: 10, orderid: 11 };
   const rows = [];
   for (let i = 1; i < regels.length; i++) {
     const c = parseCsvLijn(regels[i]);
@@ -682,9 +682,22 @@ async function importCSV(file) {
     rows.push({
       datum: c[I.datum] || '', tijd: c[I.tijd] || '', product: c[I.product] || '',
       omschr: c[I.omschr] || '', valuta: c[I.valuta] || '',
-      bedrag: c[I.bedrag] || '', orderid: c.length > I.orderid ? (c[I.orderid] || '') : ''
+      bedrag: c[I.bedrag] || '',
+      saldoVal: c.length > I.saldoVal ? (c[I.saldoVal] || '') : '',
+      saldo: c.length > I.saldo ? (c[I.saldo] || '') : '',
+      orderid: c.length > I.orderid ? (c[I.orderid] || '') : ''
     });
   }
+
+  // Cash uit DeGiro's saldo-kolom: laatste saldo per valuta (rijen staan nieuwste-eerst)
+  const laatsteSaldo = {};
+  for (const r of rows) {
+    const v = (r.saldoVal || '').trim();
+    const s = num(r.saldo);
+    if (v && s != null && !(v in laatsteSaldo)) laatsteSaldo[v] = s;
+  }
+  // Bewaar voor cash-berekening (omrekenen naar EUR gebeurt bij refresh met live FX)
+  try { localStorage.setItem('beleggen_saldo_v1', JSON.stringify(laatsteSaldo)); } catch (_) {}
 
   const groups = {};
   rows.forEach(r => { if (r.orderid) (groups[r.orderid] = groups[r.orderid] || []).push(r); });
@@ -878,19 +891,25 @@ function berekenPosities() {
 }
 
 function berekenCash() {
-  let cash = 0;
-  for (const t of transacties) {
-    const b = parseFloat(t.bedrag) || 0;
-    switch (t.type) {
-      case 'storting': cash += b; break;
-      case 'opname':   cash -= b; break;
-      case 'dividend': cash += b; break;
-      case 'kosten':   cash -= b; break;
-      case 'koop':     cash -= b; break;
-      case 'verkoop':  cash += b; break;
-    }
+  // 1. Handmatige correctie heeft altijd voorrang
+  const handmatig = localStorage.getItem('beleggen_cash_handmatig');
+  if (handmatig != null && handmatig !== '') {
+    const v = parseFloat(handmatig);
+    if (!isNaN(v)) return Math.round(v * 100) / 100;
   }
-  return Math.round(cash * 100) / 100;
+  // 2. Anders: laatste saldo per valuta uit DeGiro, omgerekend naar EUR
+  try {
+    const raw = localStorage.getItem('beleggen_saldo_v1');
+    if (raw) {
+      const saldo = JSON.parse(raw);
+      let totaal = 0;
+      for (const [val, bedrag] of Object.entries(saldo)) {
+        totaal += naarEur(bedrag, val);
+      }
+      return Math.round(totaal * 100) / 100;
+    }
+  } catch (_) {}
+  return 0;
 }
 
 function berekenIngelegd() {
@@ -901,6 +920,29 @@ function berekenIngelegd() {
     if (t.type === 'opname') ing -= b;
   }
   return Math.round(ing * 100) / 100;
+}
+
+// Totaal geïnvesteerd PDT-stijl: kostbasis open posities + cash
+function berekenGeinvesteerd(posities, cash) {
+  let kb = 0;
+  for (const p of Object.values(posities)) {
+    if (p.aantal > 0.001) kb += p.kosten;
+  }
+  return Math.round((kb + cash) * 100) / 100;
+}
+
+function corrigeerCash() {
+  const huidig = berekenCash();
+  const inv = prompt(`Cash handmatig corrigeren (huidige berekening: €${huidig.toFixed(2)}).\n\nVul je werkelijke cash-saldo in euro's in (bijv. 255.76).\nLaat leeg en klik OK om terug te gaan naar automatisch.`, huidig.toFixed(2));
+  if (inv === null) return; // geannuleerd
+  if (inv.trim() === '') {
+    localStorage.removeItem('beleggen_cash_handmatig');
+  } else {
+    const v = parseFloat(inv.replace(',', '.'));
+    if (isNaN(v)) { alert('Ongeldig getal.'); return; }
+    localStorage.setItem('beleggen_cash_handmatig', String(v));
+  }
+  refreshData();
 }
 
 // ═══ WISSELKOERSEN ═════════════════════════════════════════════════════════
@@ -924,8 +966,9 @@ async function refreshData() {
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader"></i> Laden...'; }
 
   const posities = berekenPosities();
+  await haalFxOp();
   const cash = berekenCash();
-  const ingelegd = berekenIngelegd();
+  const ingelegd = berekenGeinvesteerd(posities, cash);
   document.getElementById('pi').textContent = '€' + Math.round(ingelegd).toLocaleString('nl-NL');
 
   const open = Object.entries(posities)
@@ -946,7 +989,6 @@ async function refreshData() {
   }
 
   document.getElementById('pts').textContent = 'Koersen ophalen...';
-  await haalFxOp();
 
   const results = [];
   let totaalWaarde = 0, totaalInv = 0;
@@ -1014,10 +1056,11 @@ function rPortfolio(data, totaalWaarde, ingelegd) {
       return `<tr class="cashrij">
         <td><span class="tkr">CASH</span><div style="font-size:10px;color:var(--text2);font-weight:400">${p.naam}</div></td>
         <td>—</td><td>—</td><td>—</td>
-        <td class="${cl}">€${Math.round(p.waarde).toLocaleString('nl-NL')}</td>
+        <td class="${cl}">€${p.waarde.toLocaleString('nl-NL', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
         <td>—</td>
         <td>${totaalWaarde ? (p.waarde / totaalWaarde * 100).toFixed(1) + '%' : '—'}</td>
-        <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td style="color:var(--text2)">Buffer</td>
+        <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>
+        <td><button class="btn btn-sm" onclick="corrigeerCash()" title="Cash handmatig corrigeren"><i class="ti ti-pencil"></i> Corrigeer</button></td>
       </tr>`;
     }
     const wStr = p.waarde ? '€' + Math.round(p.waarde).toLocaleString('nl-NL') : '—';
