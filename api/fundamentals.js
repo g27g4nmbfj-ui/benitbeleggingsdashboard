@@ -45,9 +45,19 @@ export default async function handler(req, res) {
     if (m.returnOnInvestedCapitalTTM != null) metric.roic = pct(m.returnOnInvestedCapitalTTM);
   }
 
-  // 4. FORWARD P/E — via analyst estimates (forward eps) of grade endpoint
-  const est = await jget(`${base}/analyst-estimates?symbol=${sym}&period=annual&limit=1&apikey=${key}`);
-  if (est && est.epsAvg && metric.price) {
+  // 4. FORWARD P/E — analyst estimates, eerstvolgend boekjaar (zoals Finviz)
+  const est = await jget(`${base}/analyst-estimates?symbol=${sym}&period=annual&page=0&limit=5&apikey=${key}`);
+  if (Array.isArray(est) && metric.price) {
+    const nu = new Date();
+    const toekomst = est
+      .filter(e => e.epsAvg && e.date)
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .find(e => new Date(e.date) > nu);
+    const gekozen = toekomst || est.find(e => e.epsAvg);
+    if (gekozen && gekozen.epsAvg > 0) {
+      metric.forwardPE = round(metric.price / gekozen.epsAvg);
+    }
+  } else if (est && est.epsAvg && metric.price) {
     metric.forwardPE = round(metric.price / est.epsAvg);
   }
 
