@@ -81,6 +81,8 @@
   .n { color: var(--text); }
   /* Delta-getal naast de waarde: kleiner en lichter */
   .dlt { font-size: 9px; opacity: 0.7; margin-left: 3px; font-weight: 400; }
+  summary::-webkit-details-marker { display: none; }
+  summary { outline: none; }
 
   .badge { display: inline-block; padding: 2px 7px; border-radius: var(--r); font-size: 10px; font-weight: 500; }
   .bt  { background: var(--info-bg); color: var(--info-text); }
@@ -165,6 +167,24 @@
       <strong>Criteria-check</strong> per kolom t.o.v. jouw regels: Fwd P/E ≤25 · PEG ≤2 · ROE ≥20% · Op.Margin ≥15%.
       <span class="g">groen</span> = voldoet, <span class="r">rood</span> = buiten grens. Bedragen in EUR.
     </div>
+    <details class="card" style="margin-bottom:12px">
+      <summary style="padding:8px 14px;cursor:pointer;font-size:13px;font-weight:600;background:var(--bg2);list-style:none;display:flex;justify-content:space-between;align-items:center">
+        <span><i class="ti ti-clipboard-text"></i> Finviz-cijfers plakken (P/E · Fwd P/E · PEG)</span>
+        <span style="font-size:11px;color:var(--text2)">klik om te openen ▾</span>
+      </summary>
+      <div style="padding:12px">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.6">
+          Op Finviz: open je screener (Valuation-view), selecteer de tabelrijen met de muis, kopieer (Ctrl+C) en plak hieronder.
+          Finviz-cijfers krijgen voorrang op de live data en gelden voor álle tickers (ook ADYEN, SPGI, EBUS).
+        </div>
+        <textarea id="finviz-plak" rows="5" placeholder="Plak hier de gekopieerde Finviz-tabel..." style="width:100%;font-family:monospace;font-size:11px;resize:vertical;border:0.5px solid var(--border2);border-radius:var(--r);background:var(--bg);color:var(--text);padding:8px"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-prim" onclick="verwerkFinvizPlak()"><i class="ti ti-check"></i> Verwerken</button>
+          <button class="btn btn-danger btn-sm" onclick="wisFinviz()"><i class="ti ti-trash"></i> Finviz-data wissen</button>
+          <span id="finviz-status" style="font-size:12px;color:var(--text2)"></span>
+        </div>
+      </div>
+    </details>
     <div class="card">
       <div class="card-hdr">
         <div class="card-title">Posities &amp; criteria check</div>
@@ -431,6 +451,90 @@ let watchData = laadWatchlist();
 let sortPortDir = {}, sortWatDir = {};
 let kvOk = false;
 let fxRates = { EUR: 1 };
+
+// Finviz-data per ticker (jouw bron van waarheid) — heeft voorrang op Finnhub
+let finvizData = laadFinviz();
+
+function laadFinviz() {
+  try {
+    const raw = localStorage.getItem('beleggen_finviz_v1');
+    if (raw) return JSON.parse(raw);
+  } catch (_) {}
+  return {};
+}
+function slaFinvizOp() {
+  try { localStorage.setItem('beleggen_finviz_v1', JSON.stringify(finvizData)); } catch (_) {}
+}
+
+// Parse geplakte Finviz-tabel. Kolomvolgorde (Valuation view):
+// No. Ticker MarketCap P/E ForwardP/E PEG P/S P/B P/C P/FCF EPS-thisY EPS-nextY EPS-past5Y EPS-next5Y Sales-past5Y Price Change Volume
+function parseFinviz(tekst) {
+  const regels = tekst.split(/\r?\n/).map(r => r.trim()).filter(r => r.length > 0);
+  let toegevoegd = 0;
+  const num = (s) => {
+    if (!s || s === '-') return null;
+    const v = parseFloat(String(s).replace(/[%,]/g, ''));
+    return isNaN(v) ? null : v;
+  };
+
+  for (const regel of regels) {
+    // Split op tab of meerdere spaties
+    const k = regel.split(/\t|\s{2,}/).map(c => c.trim()).filter(c => c !== '');
+    if (k.length < 6) continue;
+
+    // Eerste kolom kan een rijnummer zijn → dan opschuiven
+    let i = 0;
+    if (/^\d+$/.test(k[0])) i = 1;
+
+    const ticker = (k[i] || '').toUpperCase();
+    // Ticker moet letters bevatten, geen header-regel
+    if (!/^[A-Z][A-Z0-9.]{0,6}$/.test(ticker)) continue;
+    if (ticker === 'TICKER') continue;
+
+    // k[i+1] = Market Cap (bijv 2899.62B), k[i+2]=P/E, k[i+3]=ForwardP/E, k[i+4]=PEG
+    const pe   = num(k[i + 2]);
+    const fpe  = num(k[i + 3]);
+    const peg  = num(k[i + 4]);
+    // Prijs staat verderop; pak het op één-na-laatste of zoek een getal met decimaal vóór Change
+    // We slaan prijs over (komt van Finnhub); alleen fundamentals overnemen.
+
+    if (pe == null && fpe == null && peg == null) continue;
+
+    finvizData[ticker] = {
+      trailingPE: pe,
+      forwardPE: fpe,
+      peg: peg,
+      bron: 'finviz',
+      datum: new Date().toISOString().slice(0, 10)
+    };
+    toegevoegd++;
+  }
+  return toegevoegd;
+}
+
+function verwerkFinvizPlak() {
+  const tekst = document.getElementById('finviz-plak').value;
+  if (!tekst.trim()) { alert('Plak eerst de Finviz-tabel.'); return; }
+  const n = parseFinviz(tekst);
+  if (n > 0) {
+    slaFinvizOp();
+    document.getElementById('finviz-plak').value = '';
+    document.getElementById('finviz-status').innerHTML =
+      `<span class="g">${n} ticker(s) bijgewerkt uit Finviz.</span> Klik Vernieuwen om te tonen.`;
+    refreshData();
+  } else {
+    document.getElementById('finviz-status').innerHTML =
+      `<span class="r">Geen tickers herkend.</span> Kopieer de hele tabelrij(en) inclusief ticker, P/E, Forward P/E en PEG.`;
+  }
+}
+
+function wisFinviz() {
+  if (!confirm('Alle geïmporteerde Finviz-cijfers wissen?')) return;
+  finvizData = {};
+  slaFinvizOp();
+  refreshData();
+}
+
 
 // ═══ INIT ══════════════════════════════════════════════════════════════════
 async function init() {
@@ -865,10 +969,18 @@ async function refreshData() {
       margin = m.operatingMargin ?? null;
     } catch (_) {}
 
+    // Finviz-data heeft voorrang (jouw bron van waarheid) waar aanwezig
+    const fv = finvizData[p.ticker];
+    if (fv) {
+      if (fv.trailingPE != null) trailingPE = fv.trailingPE;
+      if (fv.forwardPE != null) forwardPE = fv.forwardPE;
+      if (fv.peg != null) peg = fv.peg;
+    }
+
     const waarde = Math.round(koersEur * p.aantalPos * 100) / 100;
     const res = Math.round((waarde - p.kostbasis) * 100) / 100;
     totaalWaarde += waarde; totaalInv += p.kostbasis;
-    results.push({ ...p, koers: koersEur, waarde, res, trailingPE, forwardPE, peg, roe, margin, actie: ACTIE_MAP[p.ticker] || 'Monitor' });
+    results.push({ ...p, koers: koersEur, waarde, res, trailingPE, forwardPE, peg, roe, margin, bronFinviz: !!fv, actie: ACTIE_MAP[p.ticker] || 'Monitor' });
   }
 
   results.push({ ticker: 'CASH', naam: 'Cash (stortingen + dividend − aankopen)', valuta: 'EUR',
@@ -917,7 +1029,7 @@ function rPortfolio(data, totaalWaarde, ingelegd) {
     const actKl = (p.actie || '').includes('Nooit') ? 'var(--win)' : (p.actie || '').includes('Verkoop') ? 'var(--verlies)' : 'var(--text2)';
 
     return `<tr>
-      <td><span class="tkr">${p.ticker.replace('.AS','').replace('.L','')}</span><div style="font-size:10px;color:var(--text2)">${p.naam}</div></td>
+      <td><span class="tkr">${p.ticker.replace('.AS','').replace('.L','')}</span>${p.bronFinviz ? '<span title="cijfers uit Finviz" style="font-size:9px;color:var(--ticker);margin-left:4px;border:1px solid var(--ticker);border-radius:3px;padding:0 2px">F</span>' : ''}<div style="font-size:10px;color:var(--text2)">${p.naam}</div></td>
       <td>${p.aantalPos}</td>
       <td style="color:var(--text2)">${gakStr}</td>
       <td>${kStr}</td>
