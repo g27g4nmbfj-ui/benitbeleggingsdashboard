@@ -8,7 +8,7 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* Finviz-stijl: donkere achtergrond, hun exacte kleuren */
+  /* ─── DONKER (standaard, Finviz-stijl) ─── */
   :root {
     --bg: #1b1b1b; --bg2: #26282f; --bg3: #151515;
     --text: #d5d5d5; --text2: #9a9a9a; --text3: #707070;
@@ -24,7 +24,23 @@
     --r: 6px; --rl: 8px;
   }
 
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; color: var(--text); background: var(--bg3); min-height: 100vh; }
+  /* ─── LICHT (Familie Bénit stijl) ─── */
+  [data-theme="licht"] {
+    --bg: #ffffff; --bg2: #fafafa; --bg3: #f4f5f7;
+    --text: #1a1a2e; --text2: #8a8f9a; --text3: #b0b4bd;
+    --border: #e8e9ed; --border2: #d8dade;
+    --win: #16a34a; --verlies: #dc2626; --neutraal: #d97706;
+    --ticker: #2563eb;
+    --header-bg: #f0f1f4;
+    --rij-even: #ffffff; --rij-oneven: #fafbfc;
+    --info-bg: #e0f2fe; --info-text: #075985; --info-border: #bae6fd;
+    --warn-bg: #fef3c7; --warn-text: #b45309; --warn-border: #fde68a;
+    --ok-bg: #dcfce7;  --ok-text: #15803d;  --ok-border: #bbf7d0;
+    --err-bg: #fee2e2; --err-text: #b91c1c; --err-border: #fecaca;
+    --tab-actief: #1a1d29;
+  }
+
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; color: var(--text); background: var(--bg3); min-height: 100vh; transition: background 0.2s, color 0.2s; }
   .app { max-width: 1180px; margin: 0 auto; padding: 16px; }
 
   .hdr { display: flex; justify-content: space-between; align-items: center; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--rl); padding: 12px 16px; margin-bottom: 12px; }
@@ -35,7 +51,7 @@
   .tabs { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
   .tab { padding: 7px 14px; border: 0.5px solid var(--border); border-radius: var(--r); background: var(--bg); cursor: pointer; font-size: 13px; color: var(--text2); display: flex; align-items: center; gap: 6px; }
   .tab:hover { background: var(--bg2); }
-  .tab.active { background: var(--header-bg); color: #fff; font-weight: 500; border-color: var(--border2); }
+  .tab.active { background: var(--tab-actief, var(--header-bg)); color: #fff; font-weight: 500; border-color: var(--tab-actief, var(--border2)); }
 
   .pagina { display: none; }
   .pagina.active { display: block; }
@@ -143,7 +159,10 @@
       <div class="hsubt">P.D. Bénit &nbsp;·&nbsp; <span id="kv-status"><span class="kv-dot kv-wait"></span>Verbinden...</span></div>
     </div>
     <div class="hright">
-      <button class="btn" id="rbtn" onclick="refreshData()"><i class="ti ti-refresh"></i> Vernieuwen</button>
+      <div style="display:flex;gap:6px">
+        <button class="btn" id="themaBtn" onclick="wisselThema()" title="Licht/donker wisselen"><i class="ti ti-sun"></i></button>
+        <button class="btn" id="rbtn" onclick="refreshData()"><i class="ti ti-refresh"></i> Vernieuwen</button>
+      </div>
       <div class="rtime" id="rtime">Nog niet geladen</div>
     </div>
   </div>
@@ -538,10 +557,33 @@ function wisFinviz() {
 
 // ═══ INIT ══════════════════════════════════════════════════════════════════
 async function init() {
+  laadThema();
   await laadTransacties();
   rWatchlist();
   laadGecachedeKoersen();
   refreshData();
+}
+
+// ═══ THEMA (licht/donker) ══════════════════════════════════════════════════
+function pasThemaToe(thema) {
+  const btn = document.getElementById('themaBtn');
+  if (thema === 'licht') {
+    document.documentElement.setAttribute('data-theme', 'licht');
+    if (btn) btn.innerHTML = '<i class="ti ti-moon"></i>';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    if (btn) btn.innerHTML = '<i class="ti ti-sun"></i>';
+  }
+}
+function laadThema() {
+  const opgeslagen = localStorage.getItem('beleggen_thema') || 'donker';
+  pasThemaToe(opgeslagen);
+}
+function wisselThema() {
+  const huidig = localStorage.getItem('beleggen_thema') || 'donker';
+  const nieuw = huidig === 'donker' ? 'licht' : 'donker';
+  localStorage.setItem('beleggen_thema', nieuw);
+  pasThemaToe(nieuw);
 }
 
 // ═══ KV OPSLAG ═════════════════════════════════════════════════════════════
@@ -703,7 +745,7 @@ async function importCSV(file) {
   rows.forEach(r => { if (r.orderid) (groups[r.orderid] = groups[r.orderid] || []).push(r); });
 
   const nieuweTrans = [];
-  let splits = 0;
+
 
   for (const oid of Object.keys(groups)) {
     const g = groups[oid];
@@ -759,6 +801,44 @@ async function importCSV(file) {
     });
   }
 
+  // Split-aanpassingen, claimemissie, delisting: aandeelaantal aanpassen zonder kostbasis-impact
+  // DeGiro split = 2 regels: oude aandelen eruit (+bedrag), nieuwe erin (−bedrag) of omgekeerd.
+  // We lezen het aantal uit de omschrijving en het teken uit het bedrag.
+  for (const r of rows) {
+    const o = r.omschr;
+    const isSplit = /SPLIT AANPASSING/i.test(o);
+    const isClaim = /CLAIMEMISSIE/i.test(o);
+    const isDelist = /DELISTING/i.test(o);
+    if (!isSplit && !isClaim && !isDelist) continue;
+
+    // aantal uit "...: Koop/Verkoop N @ ..." of "...: N Ebusco Holding..."
+    let m = o.match(/(Koop|Verkoop)\s+([\d.,]+)/i);
+    let aantal = null, richting = 1;
+    if (m) {
+      aantal = num(m[2]);
+      richting = /Verkoop/i.test(m[1]) ? -1 : 1;
+    } else {
+      m = o.match(/:\s*([\d.,]+)\s+\D/);
+      if (m) {
+        aantal = num(m[1]);
+        // teken via bedrag: positief bedrag = aandelen eruit (verkoop-kant), negatief = erin
+        const b = num(r.bedrag);
+        richting = (b != null && b > 0) ? -1 : 1;
+      }
+    }
+    if (!aantal) continue;
+    const tinfo = productNaarTicker(r.product);
+    nieuweTrans.push({
+      id: ('corr_' + r.datum + '_' + r.tijd + '_' + tinfo.ticker + '_' + (richting * aantal)).replace(/[^a-zA-Z0-9_.-]/g, '_'),
+      datum: parseDatum(r.datum), tijd: r.tijd || '',
+      type: richting > 0 ? 'koop' : 'verkoop',
+      ticker: tinfo.ticker,
+      aantal: Math.abs(aantal),
+      prijs: 0, bedrag: 0,  // geen kostbasis-impact
+      notitie: (isSplit ? 'Split-aanpassing' : isClaim ? 'Claimemissie' : 'Delisting') + ': ' + r.product.substring(0, 25)
+    });
+  }
+
   for (const r of rows) {
     const o = r.omschr;
     let type = null, notitie = '';
@@ -766,7 +846,6 @@ async function importCSV(file) {
     else if (/Processed Flatex Withdrawal|terugstorting/i.test(o)) { type = 'opname'; notitie = 'Opname'; }
     else if (/Interest Income/i.test(o)) { type = 'dividend'; notitie = 'Rente flatex'; }
     else if (/Aansluitingskosten/i.test(o)) { type = 'kosten'; notitie = o.substring(0, 40); }
-    else if (/SPLIT AANPASSING/i.test(o)) { splits++; continue; }
     else continue;
 
     const bedrag = num(r.bedrag);
@@ -792,7 +871,7 @@ async function importCSV(file) {
     await slaOp(); rTr(); refreshData();
   }
 
-  const splitW = splits > 0 ? `<div style="margin-top:4px;font-size:11px">⚠ ${splits} split-aanpassing(en) overgeslagen — controleer Ebusco-aantal handmatig.</div>` : '';
+  const splitW = '';
   resultEl.innerHTML = `
     <div class="ibar ${toegevoegd > 0 ? 'igroen' : 'iteal'}" style="margin-top:8px">
       <div style="font-weight:500;margin-bottom:4px"><i class="ti ti-check"></i> Import klaar — ${file.name}</div>
