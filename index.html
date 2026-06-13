@@ -79,6 +79,8 @@
   .g { color: var(--win); }
   .r { color: var(--verlies); }
   .n { color: var(--text); }
+  /* Delta-getal naast de waarde: kleiner en lichter */
+  .dlt { font-size: 9px; opacity: 0.7; margin-left: 3px; font-weight: 400; }
 
   .badge { display: inline-block; padding: 2px 7px; border-radius: var(--r); font-size: 10px; font-weight: 500; }
   .bt  { background: var(--info-bg); color: var(--info-text); }
@@ -189,11 +191,25 @@
 
   <!-- WATCHLIST -->
   <div id="watchlist" class="pagina">
-    <div class="ibar izalm">Kandidaten gesorteerd op PEG — laagste = beste verhouding prijs/groei. Live waar mogelijk via FMP.</div>
+    <div class="ibar izalm">Kandidaten gesorteerd op PEG — laagste = beste verhouding prijs/groei. Voeg US-tickers toe (FMP gratis dekt vooral US-aandelen).</div>
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-hdr"><div class="card-title">Ticker toevoegen</div></div>
+      <div style="padding:12px;display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:0 0 130px">
+          <label class="flabel">Ticker</label>
+          <input type="text" id="wl-ticker" placeholder="bijv. GOOGL" onkeydown="if(event.key==='Enter')watchTickerToevoegen()">
+        </div>
+        <div style="flex:1 1 160px">
+          <label class="flabel">Naam (optioneel)</label>
+          <input type="text" id="wl-naam" placeholder="Alphabet">
+        </div>
+        <button class="btn btn-prim" onclick="watchTickerToevoegen()"><i class="ti ti-plus"></i> Toevoegen &amp; ophalen</button>
+      </div>
+    </div>
     <div class="card">
       <div class="card-hdr">
         <div class="card-title">Watchlist</div>
-        <button class="btn btn-sm" onclick="refreshWatchlist()"><i class="ti ti-refresh"></i> Live ophalen</button>
+        <button class="btn btn-sm" onclick="refreshWatchlist()"><i class="ti ti-refresh"></i> Alles vernieuwen</button>
       </div>
       <div class="tscroll">
         <table>
@@ -203,7 +219,7 @@
             <th class="sort" onclick="sW('forwardPE')">Fwd P/E ↕</th>
             <th class="sort" onclick="sW('peg')">PEG ↕</th>
             <th>ROE</th><th>Op.Mrg</th>
-            <th>Status</th>
+            <th>Status</th><th></th>
           </tr></thead>
           <tbody id="wtbody"></tbody>
         </table>
@@ -397,10 +413,21 @@ let WATCHLIST_DEF = [
   { ticker:'V',   naam:'Visa',       trailingPE:32.0, forwardPE:26.0, peg:1.9,  roe:45, margin:65, status:'later' }
 ];
 
+function laadWatchlist() {
+  try {
+    const raw = localStorage.getItem('beleggen_watchlist_v1');
+    if (raw) { const d = JSON.parse(raw); if (Array.isArray(d) && d.length) return d; }
+  } catch (_) {}
+  return JSON.parse(JSON.stringify(WATCHLIST_DEF));
+}
+function slaWatchlistOp() {
+  try { localStorage.setItem('beleggen_watchlist_v1', JSON.stringify(watchData)); } catch (_) {}
+}
+
 // ═══ STATE ═════════════════════════════════════════════════════════════════
 let transacties = [];
 let portfolioData = [];
-let watchData = JSON.parse(JSON.stringify(WATCHLIST_DEF));
+let watchData = laadWatchlist();
 let sortPortDir = {}, sortWatDir = {};
 let kvOk = false;
 let fxRates = { EUR: 1 };
@@ -502,16 +529,19 @@ function hashTr(t) {
   return `${d}|${tk}|${tp}|${a.toFixed(4)}|${b.toFixed(2)}`;
 }
 
-// Finviz-stijl: kleur de waarde zelf groen (voldoet) of rood (niet).
-// Geeft de waarde-tekst terug met de juiste class + een title-tooltip met de grens.
+// Finviz-stijl: kleur de waarde groen (voldoet) of rood (niet) + toon het verschil met de grens.
+// Bijv. PEG 0.78 met grens ≤2 → "0.78 (−1.22)" in groen. ROE 33% met grens ≥20 → "33% (+13)" in groen.
 function kleurWaarde(waarde, crit, suffix = '', decimalen = 1) {
   if (waarde == null) return '<span class="n">—</span>';
   const tekst = (decimalen === 0 ? Math.round(waarde) : waarde.toFixed(decimalen)) + suffix;
   if (!crit) return `<span class="n">${tekst}</span>`;
   const ok = crit.richting === 'max' ? waarde <= crit.grens : waarde >= crit.grens;
+  // Verschil t.o.v. de grens (positief getal = aan de goede kant)
+  const verschilRuw = crit.richting === 'max' ? crit.grens - waarde : waarde - crit.grens;
+  const tekenStr = (verschilRuw >= 0 ? '+' : '−') + Math.abs(verschilRuw).toFixed(decimalen === 0 ? 0 : (decimalen === 2 ? 2 : 1));
   const grensTxt = (crit.richting === 'max' ? '≤' : '≥') + crit.grens + suffix;
-  const titel = ok ? `voldoet (regel: ${grensTxt})` : `buiten grens (regel: ${grensTxt})`;
-  return `<span class="${ok ? 'g' : 'r'}" title="${titel}">${tekst}</span>`;
+  const titel = `regel: ${grensTxt} · verschil ${tekenStr}`;
+  return `<span class="${ok ? 'g' : 'r'}" title="${titel}">${tekst}<span class="dlt">${tekenStr}</span></span>`;
 }
 
 // ═══ DEGIRO CSV IMPORT ═════════════════════════════════════════════════════
@@ -919,18 +949,59 @@ function sP(k) {
 // ═══ WATCHLIST ═════════════════════════════════════════════════════════════
 function rWatchlist() {
   const fv = (v, d = 1) => v != null ? v.toFixed(d) : '—';
-  document.getElementById('wtbody').innerHTML = watchData.map(w => {
+  if (!watchData.length) {
+    document.getElementById('wtbody').innerHTML = '<tr><td colspan="9" class="lcel">Nog geen tickers — voeg er een toe hierboven</td></tr>';
+    return;
+  }
+  document.getElementById('wtbody').innerHTML = watchData.map((w, i) => {
     const sb = w.status === 'koop' ? '<span class="badge bg">Volgende koop</span>' : '<span class="badge bk">Later</span>';
     return `<tr>
-      <td><span class="tkr">${w.ticker}</span></td><td>${w.naam}</td>
+      <td><span class="tkr">${w.ticker}</span></td><td>${w.naam || ''}</td>
       <td><span class="n">${fv(w.trailingPE)}</span></td>
       <td>${kleurWaarde(w.forwardPE, CRITERIA.forwardPE)}</td>
       <td>${kleurWaarde(w.peg, CRITERIA.peg, '', 2)}</td>
       <td>${kleurWaarde(w.roe, CRITERIA.roe, '%', 0)}</td>
       <td>${kleurWaarde(w.margin, CRITERIA.margin, '%', 0)}</td>
       <td>${sb}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="watchVerwijder(${i})" title="Verwijderen"><i class="ti ti-x"></i></button></td>
     </tr>`;
   }).join('');
+}
+
+async function watchTickerToevoegen() {
+  const tInput = document.getElementById('wl-ticker');
+  const nInput = document.getElementById('wl-naam');
+  const ticker = tInput.value.toUpperCase().trim();
+  const naam = nInput.value.trim();
+  if (!ticker) { tInput.focus(); return; }
+  if (watchData.some(w => w.ticker === ticker)) { alert(ticker + ' staat al in de watchlist.'); return; }
+
+  const nieuw = { ticker, naam: naam || ticker, trailingPE: null, forwardPE: null, peg: null, roe: null, margin: null, status: 'later' };
+  watchData.push(nieuw);
+  slaWatchlistOp();
+  rWatchlist();
+  tInput.value = ''; nInput.value = '';
+
+  // Direct live data ophalen voor deze ticker
+  try {
+    const fR = await fetch(`/api/fundamentals?symbol=${encodeURIComponent(ticker)}`);
+    const f = await fR.json();
+    const m = (f && f.metric) || {};
+    nieuw.trailingPE = m.trailingPE ?? null;
+    nieuw.forwardPE = m.forwardPE ?? null;
+    nieuw.peg = m.peg ?? null;
+    nieuw.roe = m.roe ?? null;
+    nieuw.margin = m.operatingMargin ?? null;
+    slaWatchlistOp();
+    rWatchlist();
+  } catch (_) {}
+}
+
+function watchVerwijder(i) {
+  if (!confirm('Ticker uit watchlist verwijderen?')) return;
+  watchData.splice(i, 1);
+  slaWatchlistOp();
+  rWatchlist();
 }
 
 async function refreshWatchlist() {
@@ -948,6 +1019,7 @@ async function refreshWatchlist() {
     } catch (_) {}
     await new Promise(r => setTimeout(r, 200));
   }
+  slaWatchlistOp();
   rWatchlist();
 }
 
