@@ -1,33 +1,33 @@
-// Test of Yahoo quoteSummary werkt op Vercel (PEG-bron)
+// Test welk RapidAPI Yahoo-endpoint PEG teruggeeft
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   const symbol = req.query.symbol || 'MSFT';
-  const out = { symbol, tests: {} };
+  const key = process.env.RAPIDAPI_KEY;
+  const host = process.env.RAPIDAPI_HOST || 'yahoo-finance15.p.rapidapi.com';
+  if (!key) return res.status(200).json({ error: 'RAPIDAPI_KEY niet ingesteld in Vercel' });
 
-  // Test A: directe quoteSummary
-  try {
-    const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${symbol}?modules=defaultKeyStatistics,summaryDetail,financialData`;
-    const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' } });
-    const tekst = await r.text();
-    let peg = null, fpe = null;
+  const out = { symbol, host, tests: {} };
+  const H = { 'x-rapidapi-key': key, 'x-rapidapi-host': host };
+
+  // Verschillende mogelijke endpoints van yahoo-finance15
+  const endpoints = {
+    modules_keystats: `https://${host}/api/v1/markets/stock/modules?ticker=${symbol}&module=default-key-statistics`,
+    modules_financial: `https://${host}/api/v1/markets/stock/modules?ticker=${symbol}&module=financial-data`,
+    quote: `https://${host}/api/v1/markets/quote?ticker=${symbol}&type=STOCKS`,
+    statistics: `https://${host}/api/v1/markets/stock/statistics?ticker=${symbol}`
+  };
+
+  for (const [naam, url] of Object.entries(endpoints)) {
     try {
-      const d = JSON.parse(tekst);
-      const res0 = d?.quoteSummary?.result?.[0] || {};
-      peg = res0.defaultKeyStatistics?.pegRatio?.raw ?? null;
-      fpe = res0.defaultKeyStatistics?.forwardPE?.raw ?? null;
-    } catch {}
-    out.tests.query1 = { status: r.status, peg, forwardPE: fpe, preview: tekst.substring(0, 120) };
-  } catch (e) { out.tests.query1 = { fout: e.message }; }
-
-  // Test B: query2 variant
-  try {
-    const url = `https://query2.finance.yahoo.com/v10/finance/quoteSummary/${symbol}?modules=defaultKeyStatistics`;
-    const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
-    const tekst = await r.text();
-    let peg = null;
-    try { peg = JSON.parse(tekst)?.quoteSummary?.result?.[0]?.defaultKeyStatistics?.pegRatio?.raw ?? null; } catch {}
-    out.tests.query2 = { status: r.status, peg };
-  } catch (e) { out.tests.query2 = { fout: e.message }; }
-
+      const r = await fetch(url, { headers: H });
+      const tekst = await r.text();
+      let preview = tekst.substring(0, 300);
+      // Zoek naar peg in de response
+      const heeftPeg = /peg/i.test(tekst);
+      out.tests[naam] = { status: r.status, heeftPeg, preview };
+    } catch (e) {
+      out.tests[naam] = { fout: e.message };
+    }
+  }
   res.status(200).json(out);
 }
