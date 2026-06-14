@@ -462,6 +462,44 @@ function slaFinvizOp() {
   try { localStorage.setItem('beleggen_finviz_v1', JSON.stringify(finvizData)); } catch (_) {}
 }
 
+// Handmatig cijfers invoeren/aanpassen per aandeel (werkt voor EU én US).
+// Slaat op in dezelfde overlay-laag als Finviz, dus heeft voorrang op de live data.
+function handmatigInvoeren(ticker) {
+  const bestaand = finvizData[ticker] || {};
+  const huidigF = bestaand.forwardPE != null ? bestaand.forwardPE : '';
+  const huidigP = bestaand.peg != null ? bestaand.peg : '';
+  const huidigR = bestaand.roe != null ? bestaand.roe : '';
+  const huidigM = bestaand.margin != null ? bestaand.margin : '';
+  const huidigT = bestaand.trailingPE != null ? bestaand.trailingPE : '';
+
+  const fwd = prompt(`${ticker} — Forward P/E\n(leeg = automatisch laten)`, huidigF);
+  if (fwd === null) return;
+  const peg = prompt(`${ticker} — PEG\n(leeg = automatisch laten)`, huidigP);
+  if (peg === null) return;
+  const roe = prompt(`${ticker} — ROE in %\n(bijv. 33, leeg = automatisch)`, huidigR);
+  if (roe === null) return;
+  const mrg = prompt(`${ticker} — Operating Margin in %\n(bijv. 41, leeg = automatisch)`, huidigM);
+  if (mrg === null) return;
+  const pe = prompt(`${ticker} — P/E (TTM)\n(optioneel, leeg = automatisch)`, huidigT);
+  if (pe === null) return;
+
+  const parse = (s) => { if (s == null || String(s).trim() === '') return null; const v = parseFloat(String(s).replace(',', '.')); return isNaN(v) ? null : v; };
+
+  const nieuw = {
+    forwardPE: parse(fwd), peg: parse(peg), roe: parse(roe),
+    margin: parse(mrg), trailingPE: parse(pe),
+    bron: 'handmatig', datum: new Date().toISOString().slice(0, 10)
+  };
+  // Als alles leeg → verwijder de overlay (terug naar automatisch)
+  if (nieuw.forwardPE == null && nieuw.peg == null && nieuw.roe == null && nieuw.margin == null && nieuw.trailingPE == null) {
+    delete finvizData[ticker];
+  } else {
+    finvizData[ticker] = nieuw;
+  }
+  slaFinvizOp();
+  refreshData();
+}
+
 // Parse geplakte Finviz-tabel. Kolomvolgorde (Valuation view):
 // No. Ticker MarketCap P/E ForwardP/E PEG P/S P/B P/C P/FCF EPS-thisY EPS-nextY EPS-past5Y EPS-next5Y Sales-past5Y Price Change Volume
 function parseFinviz(tekst) {
@@ -1097,12 +1135,14 @@ async function refreshData() {
     let pegGeschat = false;
     try { pegGeschat = !!(f && f.metric && f.metric.pegGeschat); } catch (_) {}
 
-    // Finviz-data heeft voorrang (jouw bron van waarheid) waar aanwezig
+    // Overlay (Finviz-plak of handmatig) heeft voorrang waar aanwezig
     const fv = finvizData[p.ticker];
     if (fv) {
       if (fv.trailingPE != null) trailingPE = fv.trailingPE;
       if (fv.forwardPE != null) forwardPE = fv.forwardPE;
-      if (fv.peg != null) { peg = fv.peg; pegGeschat = false; }  // Finviz = exact
+      if (fv.peg != null) { peg = fv.peg; pegGeschat = false; }  // overlay = exact
+      if (fv.roe != null) roe = fv.roe;
+      if (fv.margin != null) margin = fv.margin;
     }
 
     const waarde = Math.round(koersEur * p.aantalPos * 100) / 100;
@@ -1172,11 +1212,15 @@ function rPortfolio(data, totaalWaarde, ingelegd) {
     const act = actieVoor(p.ticker);
     const actBadge = `<span class="badge ${act.cls}" style="cursor:pointer" onclick="wijzigActie('${p.ticker}')" title="klik om te wijzigen">${act.label}</span>`;
 
-    const fBadge = p.bronFinviz ? '<span title="cijfers uit Finviz" style="font-size:9px;color:var(--teal);margin-left:4px;border:1px solid var(--teal);border-radius:3px;padding:0 2px">F</span>' : '';
+    const ov = finvizData[p.ticker];
+    const bronBadge = ov
+      ? `<span title="cijfers ${ov.bron === 'handmatig' ? 'handmatig ingevoerd' : 'uit Finviz'}" style="font-size:9px;color:var(--teal);margin-left:4px;border:1px solid var(--teal);border-radius:3px;padding:0 2px">${ov.bron === 'handmatig' ? 'H' : 'F'}</span>`
+      : '';
+    const editBtn = `<span onclick="handmatigInvoeren('${p.ticker}')" title="Cijfers handmatig invoeren/aanpassen" style="cursor:pointer;font-size:11px;margin-left:5px;opacity:0.5">✏️</span>`;
     const peTTM = p.trailingPE != null ? `<span style="font-size:10px;color:var(--muted)">P/E ${p.trailingPE.toFixed(1)}</span>` : '';
 
     return `<tr>
-      <td><div class="tkgr">${p.ticker.replace('.AS','').replace('.L','')}${fBadge}</div><div class="tkkl">${p.naam}</div></td>
+      <td><div class="tkgr">${p.ticker.replace('.AS','').replace('.L','')}${bronBadge}${editBtn}</div><div class="tkkl">${p.naam}</div></td>
       <td style="color:var(--muted);font-size:11px">${gakStr}<div style="font-size:10px">${p.aantalPos} st</div></td>
       <td>${kStr}</td>
       <td>${wStr}</td>
