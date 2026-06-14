@@ -160,7 +160,7 @@
       <div class="metric"><div class="mlbl">Rendement</div><div class="mval" id="pp">—</div></div>
     </div>
     <div class="ibar iteal">
-      ℹ️ Criteria: Fwd P/E ≤25 · PEG ≤2 · ROE ≥20% · Op.Margin ≥15% — delta toont hoeveel een positie van de grens afwijkt. Bedragen in EUR.
+      ℹ️ Criteria: Fwd P/E ≤25 · PEG ≤2 · ROE ≥20% · Op.Margin ≥15% — delta toont de afwijking van de grens. <strong>~</strong> = geschatte PEG (plak Finviz voor exact). Bedragen in EUR.
     </div>
     <details class="twrap" style="margin-bottom:12px">
       <summary class="thdr" style="cursor:pointer">
@@ -678,17 +678,19 @@ function hashTr(t) {
 
 // Finviz-stijl: kleur de waarde groen (voldoet) of rood (niet) + toon het verschil met de grens.
 // Bijv. PEG 0.78 met grens ≤2 → "0.78 (−1.22)" in groen. ROE 33% met grens ≥20 → "33% (+13)" in groen.
-function kleurWaarde(waarde, crit, suffix = '', decimalen = 1) {
+function kleurWaarde(waarde, crit, suffix = '', decimalen = 1, geschat = false) {
   if (waarde == null) return '<span class="n">—</span>';
-  const tekst = (decimalen === 0 ? Math.round(waarde) : waarde.toFixed(decimalen)) + suffix;
-  if (!crit) return `<span class="n">${tekst}</span>`;
+  const prefix = geschat ? '~' : '';
+  const tekst = prefix + (decimalen === 0 ? Math.round(waarde) : waarde.toFixed(decimalen)) + suffix;
+  const geschatTitel = geschat ? 'Geschatte waarde (Forward P/E ÷ EPS-groei) — kan afwijken van Finviz. ' : '';
+  if (!crit) return `<span class="n"${geschat ? ' title="'+geschatTitel+'"' : ''}>${tekst}</span>`;
   const ok = crit.richting === 'max' ? waarde <= crit.grens : waarde >= crit.grens;
   // Verschil t.o.v. de grens (positief getal = aan de goede kant)
   const verschilRuw = crit.richting === 'max' ? crit.grens - waarde : waarde - crit.grens;
   const tekenStr = (verschilRuw >= 0 ? '+' : '−') + Math.abs(verschilRuw).toFixed(decimalen === 0 ? 0 : (decimalen === 2 ? 2 : 1));
   const grensTxt = (crit.richting === 'max' ? '≤' : '≥') + crit.grens + suffix;
-  const titel = `regel: ${grensTxt} · verschil ${tekenStr}`;
-  return `<span class="${ok ? 'g' : 'r'}" title="${titel}">${tekst}<span class="dlt">${tekenStr}</span></span>`;
+  const titel = geschatTitel + `regel: ${grensTxt} · verschil ${tekenStr}`;
+  return `<span class="${ok ? 'g' : 'r'}" title="${titel}"${geschat ? ' style="opacity:0.85"' : ''}>${tekst}<span class="dlt">${tekenStr}</span></span>`;
 }
 
 // ═══ DEGIRO CSV IMPORT ═════════════════════════════════════════════════════
@@ -1092,18 +1094,21 @@ async function refreshData() {
       margin = m.operatingMargin ?? null;
     } catch (_) {}
 
+    let pegGeschat = false;
+    try { pegGeschat = !!(f && f.metric && f.metric.pegGeschat); } catch (_) {}
+
     // Finviz-data heeft voorrang (jouw bron van waarheid) waar aanwezig
     const fv = finvizData[p.ticker];
     if (fv) {
       if (fv.trailingPE != null) trailingPE = fv.trailingPE;
       if (fv.forwardPE != null) forwardPE = fv.forwardPE;
-      if (fv.peg != null) peg = fv.peg;
+      if (fv.peg != null) { peg = fv.peg; pegGeschat = false; }  // Finviz = exact
     }
 
     const waarde = Math.round(koersEur * p.aantalPos * 100) / 100;
     const res = Math.round((waarde - p.kostbasis) * 100) / 100;
     totaalWaarde += waarde; totaalInv += p.kostbasis;
-    results.push({ ...p, koers: koersEur, waarde, res, trailingPE, forwardPE, peg, roe, margin, bronFinviz: !!fv, actie: ACTIE_MAP[p.ticker] || 'Monitor' });
+    results.push({ ...p, koers: koersEur, waarde, res, trailingPE, forwardPE, peg, pegGeschat, roe, margin, bronFinviz: !!fv, actie: ACTIE_MAP[p.ticker] || 'Monitor' });
   }
 
   results.push({ ticker: 'CASH', naam: 'Buffer', valuta: 'EUR',
@@ -1178,7 +1183,7 @@ function rPortfolio(data, totaalWaarde, ingelegd) {
       <td style="${rc}">${p.koers ? (resPct>=0?'+':'')+resPct.toFixed(1)+'%' : '—'}<br><span style="font-size:11px;font-weight:400">${rStr}</span></td>
       <td>${gew}</td>
       <td>${kleurWaarde(p.forwardPE, CRITERIA.forwardPE)} ${peTTM}</td>
-      <td>${kleurWaarde(p.peg, CRITERIA.peg, '', 2)}</td>
+      <td>${kleurWaarde(p.peg, CRITERIA.peg, '', 2, p.pegGeschat)}</td>
       <td>${kleurWaarde(p.roe, CRITERIA.roe, '%', 0)}</td>
       <td>${kleurWaarde(p.margin, CRITERIA.margin, '%', 0)}</td>
       <td>${status}</td>
