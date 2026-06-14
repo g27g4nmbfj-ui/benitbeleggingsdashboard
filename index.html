@@ -468,40 +468,64 @@ function parseFinviz(tekst) {
   const regels = tekst.split(/\r?\n/).map(r => r.trim()).filter(r => r.length > 0);
   let toegevoegd = 0;
   const num = (s) => {
-    if (!s || s === '-') return null;
+    if (!s || s === '-' || s === '') return null;
     const v = parseFloat(String(s).replace(/[%,]/g, ''));
     return isNaN(v) ? null : v;
   };
+  const splitRij = (r) => {
+    // Eerst proberen op tab of 2+ spaties (behoudt namen met spaties)
+    let c = r.split(/\t|\s{2,}/).map(x => x.trim()).filter(x => x !== '');
+    // Als dat te weinig kolommen geeft, split op elke spatie (Finviz zonder tabs)
+    if (c.length < 4) c = r.split(/\s+/).map(x => x.trim()).filter(x => x !== '');
+    return c;
+  };
+
+  // Stap 1: zoek de kop-regel om kolomposities te bepalen
+  let kolIdx = null;
+  for (const regel of regels) {
+    const k = splitRij(regel);
+    const upper = k.map(c => c.toUpperCase().replace(/[^A-Z/]/g, ''));
+    if (upper.includes('TICKER') && (upper.includes('PEG') || upper.some(c => c.includes('FORWARDP')))) {
+      kolIdx = {};
+      k.forEach((c, idx) => {
+        const norm = c.toUpperCase().replace(/[^A-Z/]/g, '');
+        if (norm === 'TICKER') kolIdx.ticker = idx;
+        else if (norm === 'P/E' && kolIdx.pe == null) kolIdx.pe = idx;
+        else if (norm === 'FORWARDP/E' || norm === 'FWDP/E') kolIdx.fpe = idx;
+        else if (norm === 'PEG') kolIdx.peg = idx;
+      });
+      break;
+    }
+  }
 
   for (const regel of regels) {
-    // Split op tab of meerdere spaties
-    const k = regel.split(/\t|\s{2,}/).map(c => c.trim()).filter(c => c !== '');
-    if (k.length < 6) continue;
+    const k = splitRij(regel);
+    if (k.length < 4) continue;
 
-    // Eerste kolom kan een rijnummer zijn → dan opschuiven
-    let i = 0;
-    if (/^\d+$/.test(k[0])) i = 1;
+    let ticker, pe, fpe, peg;
 
-    const ticker = (k[i] || '').toUpperCase();
-    // Ticker moet letters bevatten, geen header-regel
-    if (!/^[A-Z][A-Z0-9.]{0,6}$/.test(ticker)) continue;
-    if (ticker === 'TICKER') continue;
+    if (kolIdx && kolIdx.ticker != null) {
+      // Gebruik herkende kolomposities
+      ticker = (k[kolIdx.ticker] || '').toUpperCase();
+      pe  = kolIdx.pe  != null ? num(k[kolIdx.pe])  : null;
+      fpe = kolIdx.fpe != null ? num(k[kolIdx.fpe]) : null;
+      peg = kolIdx.peg != null ? num(k[kolIdx.peg]) : null;
+    } else {
+      // Fallback: vaste Valuation-volgorde (No. Ticker Cap P/E FwdP/E PEG ...)
+      let i = /^\d+$/.test(k[0]) ? 1 : 0;
+      ticker = (k[i] || '').toUpperCase();
+      pe  = num(k[i + 2]);
+      fpe = num(k[i + 3]);
+      peg = num(k[i + 4]);
+    }
 
-    // k[i+1] = Market Cap (bijv 2899.62B), k[i+2]=P/E, k[i+3]=ForwardP/E, k[i+4]=PEG
-    const pe   = num(k[i + 2]);
-    const fpe  = num(k[i + 3]);
-    const peg  = num(k[i + 4]);
-    // Prijs staat verderop; pak het op één-na-laatste of zoek een getal met decimaal vóór Change
-    // We slaan prijs over (komt van Finnhub); alleen fundamentals overnemen.
-
+    // Valideer ticker (geen header/rommel)
+    if (!/^[A-Z][A-Z0-9.]{0,6}$/.test(ticker) || ticker === 'TICKER') continue;
     if (pe == null && fpe == null && peg == null) continue;
 
     finvizData[ticker] = {
-      trailingPE: pe,
-      forwardPE: fpe,
-      peg: peg,
-      bron: 'finviz',
-      datum: new Date().toISOString().slice(0, 10)
+      trailingPE: pe, forwardPE: fpe, peg: peg,
+      bron: 'finviz', datum: new Date().toISOString().slice(0, 10)
     };
     toegevoegd++;
   }
@@ -1082,7 +1106,7 @@ async function refreshData() {
     results.push({ ...p, koers: koersEur, waarde, res, trailingPE, forwardPE, peg, roe, margin, bronFinviz: !!fv, actie: ACTIE_MAP[p.ticker] || 'Monitor' });
   }
 
-  results.push({ ticker: 'CASH', naam: 'Cash (stortingen + dividend − aankopen)', valuta: 'EUR',
+  results.push({ ticker: 'CASH', naam: 'Buffer', valuta: 'EUR',
                  aantalPos: '', gak: 0, kostbasis: 0, koers: 0, waarde: cash, res: 0,
                  trailingPE: null, forwardPE: null, peg: null, roe: null, margin: null, actie: '', isCash: true });
   totaalWaarde += cash;
