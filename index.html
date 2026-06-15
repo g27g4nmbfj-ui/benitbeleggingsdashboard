@@ -188,7 +188,7 @@
       <div class="tscroll">
         <table>
           <thead><tr>
-            <th onclick="sP('waarde')">Aandeel</th><th>GAK</th><th>Koers €</th>
+            <th onclick="sP('waarde')">Aandeel</th><th>GAK</th><th>Koers</th>
             <th onclick="sP('waarde')">Waarde €</th>
             <th onclick="sP('res')">Resultaat ↕</th>
             <th>Gewicht</th>
@@ -883,18 +883,33 @@ async function importCSV(file) {
   for (const r of rows) {
     const o = r.omschr;
     let type = null, notitie = '';
-    if (o === 'iDEAL Deposit' || o === 'Storting' || o === 'flatex Storting') { type = 'storting'; notitie = o; }
-    else if (/Processed Flatex Withdrawal|terugstorting/i.test(o)) { type = 'opname'; notitie = 'Opname'; }
-    else if (/Interest Income/i.test(o)) { type = 'dividend'; notitie = 'Rente flatex'; }
+    const bedragRuw = num(r.bedrag);
+    if (bedragRuw == null || bedragRuw === 0) continue;
+
+    const isDeposit = (o === 'iDEAL Deposit' || o === 'Storting' || o === 'flatex Storting');
+    const isWithdrawal = /Processed Flatex Withdrawal|terugstorting/i.test(o);
+
+    if (isDeposit || isWithdrawal) {
+      // Bank-kasstroom met behoud van teken: positief = storting, negatief = opname.
+      // (Geverifieerd tegen PDT: deposits + withdrawals met hun teken = netto gestort.)
+      if (bedragRuw >= 0) { type = 'storting'; notitie = isDeposit ? o : 'Bank-bijschrijving'; }
+      else { type = 'opname'; notitie = isWithdrawal ? 'Opname' : 'Correctie'; }
+      nieuweTrans.push({
+        id: (type + '_bank_' + r.datum + '_' + r.tijd + '_' + Math.abs(bedragRuw).toFixed(2)).replace(/[^a-zA-Z0-9_.]/g, '_'),
+        datum: parseDatum(r.datum), tijd: r.tijd || '', type, ticker: '', aantal: '', prijs: '',
+        bedrag: Math.round(Math.abs(bedragRuw) * 100) / 100, notitie
+      });
+      continue;
+    }
+
+    if (/Interest Income/i.test(o)) { type = 'dividend'; notitie = 'Rente flatex'; }
     else if (/Aansluitingskosten/i.test(o)) { type = 'kosten'; notitie = o.substring(0, 40); }
     else continue;
 
-    const bedrag = num(r.bedrag);
-    if (bedrag == null || bedrag === 0) continue;
     nieuweTrans.push({
-      id: (type + '_' + r.datum + '_' + Math.abs(bedrag).toFixed(2)).replace(/[^a-zA-Z0-9_.]/g, '_'),
-      datum: parseDatum(r.datum), type, ticker: '', aantal: '', prijs: '',
-      bedrag: Math.round(Math.abs(bedrag) * 100) / 100, notitie
+      id: (type + '_' + r.datum + '_' + r.tijd + '_' + Math.abs(bedragRuw).toFixed(2)).replace(/[^a-zA-Z0-9_.]/g, '_'),
+      datum: parseDatum(r.datum), tijd: r.tijd || '', type, ticker: '', aantal: '', prijs: '',
+      bedrag: Math.round(Math.abs(bedragRuw) * 100) / 100, notitie
     });
   }
 
@@ -1115,12 +1130,16 @@ async function refreshData() {
   let totaalWaarde = 0, totaalInv = 0;
 
   for (const p of open) {
-    let koersEur = 0, trailingPE = null, forwardPE = null, peg = null, roe = null, margin = null;
+    let koersEur = 0, koersOrig = 0, koersValuta = 'USD', trailingPE = null, forwardPE = null, peg = null, roe = null, margin = null, pegGeschat = false;
     try {
       await new Promise(r => setTimeout(r, 220));
       const qR = await fetch(`/api/quote?symbol=${encodeURIComponent(p.ticker)}`);
       const q = await qR.json();
-      if (q && q.c) koersEur = Math.round(naarEur(q.c, q.currency) * 100) / 100;
+      if (q && q.c) {
+        koersOrig = q.c;
+        koersValuta = q.currency || 'USD';
+        koersEur = Math.round(naarEur(q.c, q.currency) * 100) / 100;
+      }
 
       const fR = await fetch(`/api/fundamentals?symbol=${encodeURIComponent(p.ticker)}`);
       const f = await fR.json();
@@ -1130,10 +1149,8 @@ async function refreshData() {
       peg = m.peg ?? null;
       roe = m.roe ?? null;
       margin = m.operatingMargin ?? null;
+      pegGeschat = !!m.pegGeschat;
     } catch (_) {}
-
-    let pegGeschat = false;
-    try { pegGeschat = !!(f && f.metric && f.metric.pegGeschat); } catch (_) {}
 
     // Overlay (Finviz-plak of handmatig) heeft voorrang waar aanwezig
     const fv = finvizData[p.ticker];
@@ -1148,7 +1165,7 @@ async function refreshData() {
     const waarde = Math.round(koersEur * p.aantalPos * 100) / 100;
     const res = Math.round((waarde - p.kostbasis) * 100) / 100;
     totaalWaarde += waarde; totaalInv += p.kostbasis;
-    results.push({ ...p, koers: koersEur, waarde, res, trailingPE, forwardPE, peg, pegGeschat, roe, margin, bronFinviz: !!fv, actie: ACTIE_MAP[p.ticker] || 'Monitor' });
+    results.push({ ...p, koers: koersEur, koersOrig, koersValuta, waarde, res, trailingPE, forwardPE, peg, pegGeschat, roe, margin, bronFinviz: !!fv, actie: ACTIE_MAP[p.ticker] || 'Monitor' });
   }
 
   results.push({ ticker: 'CASH', naam: 'Buffer', valuta: 'EUR',
@@ -1191,7 +1208,10 @@ function rPortfolio(data, totaalWaarde, ingelegd) {
       </tr>`;
     }
     const wStr = p.waarde ? '€' + Math.round(p.waarde).toLocaleString('nl-NL') : '—';
-    const kStr = p.koers ? '€' + p.koers.toFixed(2) : '—';
+    // Koers in eigen valuta van het aandeel (USD/EUR/GBP)
+    const valSym = { USD: '$', EUR: '€', GBP: '£', GBp: 'p', GBX: 'p' };
+    const sym = valSym[p.koersValuta] || (p.koersValuta ? p.koersValuta + ' ' : '');
+    const kStr = p.koersOrig ? sym + p.koersOrig.toFixed(2) : (p.koers ? '€' + p.koers.toFixed(2) : '—');
     const gakStr = p.gak ? '€' + p.gak.toFixed(2) : '—';
     const rStr = p.koers ? (p.res >= 0 ? '+' : '') + Math.round(p.res).toLocaleString('nl-NL') + '€' : '—';
     const resPct = p.kostbasis ? (p.res / p.kostbasis * 100) : 0;
