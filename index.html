@@ -424,20 +424,20 @@ const CRITERIA = {
 
 // Watchlist — wordt live aangevuld via FMP indien beschikbaar
 let WATCHLIST_DEF = [
-  { ticker:'TSM', naam:'TSMC',       trailingPE:35.0, forwardPE:21.3, peg:0.66, roe:30, margin:45, status:'koop' },
-  { ticker:'MA',  naam:'Mastercard', trailingPE:38.0, forwardPE:28.0, peg:1.8,  roe:180,margin:55, status:'later' },
-  { ticker:'V',   naam:'Visa',       trailingPE:32.0, forwardPE:26.0, peg:1.9,  roe:45, margin:65, status:'later' }
+  { ticker:'TSM',  naam:'TSMC',       trailingPE:null, forwardPE:null, peg:null, roe:null, margin:null, status:'koop' },
+  { ticker:'MA',   naam:'Mastercard', trailingPE:null, forwardPE:null, peg:null, roe:null, margin:null, status:'later' },
+  { ticker:'V',    naam:'Visa',       trailingPE:null, forwardPE:null, peg:null, roe:null, margin:null, status:'later' }
 ];
 
 function laadWatchlist() {
   try {
-    const raw = localStorage.getItem('beleggen_watchlist_v1');
+    const raw = localStorage.getItem('beleggen_watchlist_v2');
     if (raw) { const d = JSON.parse(raw); if (Array.isArray(d) && d.length) return d; }
   } catch (_) {}
   return JSON.parse(JSON.stringify(WATCHLIST_DEF));
 }
 function slaWatchlistOp() {
-  try { localStorage.setItem('beleggen_watchlist_v1', JSON.stringify(watchData)); } catch (_) {}
+  try { localStorage.setItem('beleggen_watchlist_v2', JSON.stringify(watchData)); } catch (_) {}
 }
 
 // ═══ STATE ═════════════════════════════════════════════════════════════════
