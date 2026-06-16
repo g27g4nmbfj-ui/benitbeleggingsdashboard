@@ -329,56 +329,100 @@
 
   <!-- REGELS -->
   <div id="regels" class="pagina">
+
+    <!-- De kernvraag, prominent bovenaan -->
+    <div class="twrap" style="margin-bottom:14px;border-left:4px solid var(--teal)">
+      <div style="padding:16px 20px">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">💡 De kernvraag bij elke beslissing</div>
+        <div style="font-size:15px;font-weight:600;line-height:1.5">"Zou ik dit bedrijf vandaag, tegen deze prijs, nog kopen via mijn screener?"</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px">Nee = verkoopkandidaat — ongeacht winst of verlies. Je aankoopprijs is irrelevant voor de beslissing.</div>
+      </div>
+    </div>
+
+    <!-- KOPEN (groen) en VERKOPEN (rood) naast elkaar -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+
+      <!-- KOOPREGELS -->
+      <div class="twrap" style="border-top:3px solid var(--win)">
+        <div class="thdr"><div class="ttitel" style="color:var(--win)">🟢 Wanneer KOPEN</div></div>
+        <div style="padding:4px 0">
+          <table><tbody>
+            <tr><td style="color:var(--muted);font-size:11px;width:140px">Market Cap</td><td>≥ $10 miljard</td></tr>
+            <tr><td style="color:var(--muted);font-size:11px">Forward P/E</td><td>≤ 25 <span style="color:var(--muted)">(soepeler bij lage PEG)</span></td></tr>
+            <tr><td style="color:var(--muted);font-size:11px">PEG Ratio</td><td>≤ 2 — zo laag mogelijk</td></tr>
+            <tr><td style="color:var(--muted);font-size:11px">ROIC</td><td>≥ 15%</td></tr>
+            <tr><td style="color:var(--muted);font-size:11px">ROE</td><td>≥ 20%</td></tr>
+            <tr><td style="color:var(--muted);font-size:11px">Operating Margin</td><td>≥ 15%</td></tr>
+            <tr><td style="color:var(--muted);font-size:11px">Vrije kasstroom</td><td>Positief + groeiend</td></tr>
+            <tr><td style="color:var(--muted);font-size:11px">EPS-groei</td><td>Positief, bevestigd door revisies</td></tr>
+            <tr><td style="color:var(--muted);font-size:11px">Nettoschuld</td><td>Laag (Net Debt/EBITDA &lt; 3)</td></tr>
+            <tr><td style="color:var(--muted);font-size:11px">Vermijden</td><td>Goudmijners, biotech, hype</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+
+      <!-- VERKOOPREGELS -->
+      <div class="twrap" style="border-top:3px solid var(--rood)">
+        <div class="thdr"><div class="ttitel" style="color:var(--rood)">🔴 Wanneer VERKOPEN</div></div>
+        <div style="padding:4px 0">
+          <table><tbody>
+            <tr><td style="color:var(--muted);font-size:11px;width:30px">1</td><td><strong>Groei structureel weg</strong><div style="font-size:11px;color:var(--muted)">Growth grade ≤ C én neerwaartse EPS-revisies</div></td></tr>
+            <tr><td style="color:var(--muted);font-size:11px">2</td><td><strong>2+ kernregels gebroken</strong><div style="font-size:11px;color:var(--muted)">ROE, marge of schuld breekt — als trend, niet 1 kwartaal</div></td></tr>
+            <tr><td style="color:var(--muted);font-size:11px">3</td><td><strong>Absurd duur geworden</strong><div style="font-size:11px;color:var(--muted)">PEG ver boven 2-3, koers losgezongen van winst</div></td></tr>
+            <tr><td style="color:var(--muted);font-size:11px">4</td><td><strong>Duidelijk betere kandidaat</strong><div style="font-size:11px;color:var(--zd)">⚠️ Voorzichtig — zo begint overtraden</div></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- GÉÉN verkoopreden (schijnsignalen) -->
+    <div class="ibar idanger" style="margin-bottom:14px">
+      <strong>✕ GÉÉN verkoopreden (schijnsignalen):</strong>
+      koers gedaald maar fundamentals intact (vaak juist koopmoment) ·
+      "winst veiligstellen" (= winnaars te vroeg verkopen) ·
+      eng nieuws of één slechte maand (ruis) ·
+      "het staat onder mijn aankoopprijs" (irrelevant)
+    </div>
+
+    <!-- Jouw twee valkuilen -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div class="ibar izalm">
+        <strong>⚠️ Valkuil 1 — Winnaars te vroeg verkopen</strong><br>
+        Voldoet het nog aan ál je koopregels? Dan HOUDEN, ook bij mooie winst.
+      </div>
+      <div class="ibar izalm">
+        <strong>⚠️ Valkuil 2 — Verliezers te lang vasthouden</strong><br>
+        Breekt het je regels structureel? Dan VERKOPEN, ook bij verlies. Dat is discipline.
+      </div>
+    </div>
+
+    <!-- Maandelijkse werkwijze -->
+    <div class="twrap" style="margin-bottom:14px">
+      <div class="thdr"><div class="ttitel">📅 Maandelijkse check — werkwijze</div></div>
+      <div style="padding:4px 0">
+        <table><tbody>
+          <tr><td style="width:28px;color:var(--teal);font-weight:600">1</td><td>Sorteer screener op PEG laag → hoog. Beste prijs/groei bovenaan.</td></tr>
+          <tr><td style="color:var(--teal);font-weight:600">2</td><td>Schrap wat je al (zwaar) bezit — vermijd overconcentratie.</td></tr>
+          <tr><td style="color:var(--teal);font-weight:600">3</td><td>Check of de groei écht is: Growth grade ≥ B, revisies opwaarts.</td></tr>
+          <tr><td style="color:var(--teal);font-weight:600">4</td><td>Tiebreaker: hoogste Profitability + Return on Total Capital.</td></tr>
+          <tr><td style="color:var(--teal);font-weight:600">5</td><td>Loop je posities langs de 4 verkoopregels.</td></tr>
+          <tr><td style="color:var(--teal);font-weight:600">6</td><td>Koop de beste kans — of doe niks. Cash aanhouden is ook een keuze.</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <!-- Portefeuille-discipline + screeners -->
     <div class="ibar igroen" style="margin-bottom:12px">
-      <strong>De gouden regel:</strong> Koop alleen bedrijven waar je 100% zeker van bent dat je ze 3-5 jaar vasthoudt. Twijfel je bij een daling van 30%? Koop dan niet.
+      <strong>🎯 De gouden regel:</strong> Koop alleen bedrijven waar je 100% zeker van bent dat je ze 3-5 jaar vasthoudt. Max 10-12 posities. Slaaptest: morgen nog willen verkopen? Nee = het was emotie.
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-      <div class="twrap">
-        <div class="thdr"><div class="ttitel">Aankoopcriteria</div></div>
-        <table><tbody>
-          <tr><td style="color:var(--muted);font-size:11px;width:150px">Market Cap</td><td>Minimaal $10 miljard</td></tr>
-          <tr><td style="color:var(--muted);font-size:11px">Forward P/E</td><td>Maximaal 25</td></tr>
-          <tr><td style="color:var(--muted);font-size:11px">PEG Ratio</td><td>Maximaal 2 (zo laag mogelijk)</td></tr>
-          <tr><td style="color:var(--muted);font-size:11px">ROIC</td><td>Minimaal 15%</td></tr>
-          <tr><td style="color:var(--muted);font-size:11px">Operating Margin</td><td>Minimaal 15%</td></tr>
-          <tr><td style="color:var(--muted);font-size:11px">ROE</td><td>≥ 20%</td></tr>
-          <tr><td style="color:var(--muted);font-size:11px">Vrije kasstroom</td><td>Positief + groeiend</td></tr>
-          <tr><td style="color:var(--muted);font-size:11px">EPS groei 5 jaar</td><td>Positief</td></tr>
-          <tr><td style="color:var(--muted);font-size:11px">Nettoschuld</td><td>Laag of netto cash</td></tr>
-          <tr><td style="color:var(--muted);font-size:11px">Vermijden</td><td>Goudmijners, biotech</td></tr>
-        </tbody></table>
-      </div>
-      <div class="twrap">
-        <div class="thdr"><div class="ttitel">Gedragsregels</div></div>
-        <table><tbody>
-          <tr><td style="font-size:11px">Daling &gt;20%</td><td style="font-size:11px;color:var(--muted)">Bijkopen — sectordip = kans</td></tr>
-          <tr><td style="font-size:11px">Niet kopen</td><td style="font-size:11px;color:var(--muted)">Op hype, gevoel of omdat het stijgt</td></tr>
-          <tr><td style="font-size:11px">Vasthouden</td><td style="font-size:11px;color:var(--muted)">Koersdaling is geen verkoopreden</td></tr>
-          <tr><td style="font-size:11px">Verkopen alleen als</td><td style="font-size:11px;color:var(--muted)">Fundamenten structureel slechter</td></tr>
-          <tr><td style="font-size:11px">Winst nemen</td><td style="font-size:11px;color:var(--muted)">Geen reden — tenzij iets beters</td></tr>
-          <tr><td style="font-size:11px">Max posities</td><td style="font-size:11px;color:var(--muted)">10-12 namen</td></tr>
-          <tr><td style="font-size:11px">Slaaptest</td><td style="font-size:11px;color:var(--muted)">Morgen nog willen verkopen? Nee = emotie</td></tr>
-        </tbody></table>
-      </div>
-    </div>
-    <div class="twrap" style="margin-bottom:12px">
-      <div class="thdr"><div class="ttitel">Maandelijkse screener — werkwijze</div></div>
-      <table><tbody>
-        <tr><td style="width:24px;color:var(--muted)">1</td><td>Sorteer op PEG laag → hoog. Beste koop bovenaan.</td></tr>
-        <tr><td style="color:var(--muted)">2</td><td>Bekijk top 20, negeer goudmijners en biotech.</td></tr>
-        <tr><td style="color:var(--muted)">3</td><td>Noteer 2-3 interessante namen.</td></tr>
-        <tr><td style="color:var(--muted)">4</td><td>Check sectordip: tijdelijk of structureel?</td></tr>
-        <tr><td style="color:var(--muted)">5</td><td>Analyseer: FCF, moat, schuld, Forward P/E.</td></tr>
-        <tr><td style="color:var(--muted)">6</td><td>Koop beste kans — of doe niks. Niks doen is ook een actie.</td></tr>
-      </tbody></table>
-    </div>
+
     <div class="ibar iteal">
-      <strong>Finviz screener (afgesproken filters):</strong>
-      <a href="https://finviz.com/screener?v=121&f=cap_largeover,fa_eps5years_pos,fa_epsqoq_o15,fa_epsyoy_o15,fa_fpe_u25,fa_opermargin_o15,fa_pe_u50,fa_peg_u2,fa_roe_o20,fa_roi_o15&ft=4&o=peg&preset=s151623223" target="_blank">
-        Klik hier om te openen →
-      </a>
+      <strong>🔎 Screeners (afgesproken filters):</strong>
+      <a href="https://finviz.com/screener?v=121&f=cap_largeover,fa_eps5years_pos,fa_epsqoq_o15,fa_epsyoy_o15,fa_fpe_u25,fa_opermargin_o15,fa_pe_u50,fa_peg_u2,fa_roe_o20,fa_roi_o15&ft=4&o=peg" target="_blank" style="color:var(--td);font-weight:600">Finviz openen →</a>
+      &nbsp;·&nbsp; Seeking Alpha: bewaar je screener "Bénit Kwaliteit FWD" voor forward-data + PEG (dekt ook Adyen).
     </div>
   </div>
+
 
 </div>
 
@@ -894,10 +938,16 @@ async function importCSV(file) {
       // (Geverifieerd tegen PDT: deposits + withdrawals met hun teken = netto gestort.)
       if (bedragRuw >= 0) { type = 'storting'; notitie = isDeposit ? o : 'Bank-bijschrijving'; }
       else { type = 'opname'; notitie = isWithdrawal ? 'Opname' : 'Correctie'; }
+      // Volgnummer voor identieke bank-transacties op dezelfde datum+tijd+bedrag,
+      // zodat twee echte stortingen van bv. €1000 op dezelfde dag niet als duplicaat sneuvelen.
+      const bankSleutel = r.datum + '_' + (r.tijd || '') + '_' + Math.abs(bedragRuw).toFixed(2);
+      bankTeller[bankSleutel] = (bankTeller[bankSleutel] || 0) + 1;
+      const volgnr = bankTeller[bankSleutel];
       nieuweTrans.push({
-        id: (type + '_bank_' + r.datum + '_' + r.tijd + '_' + Math.abs(bedragRuw).toFixed(2)).replace(/[^a-zA-Z0-9_.]/g, '_'),
+        id: (type + '_bank_' + bankSleutel + '_' + volgnr).replace(/[^a-zA-Z0-9_.]/g, '_'),
         datum: parseDatum(r.datum), tijd: r.tijd || '', type, ticker: '', aantal: '', prijs: '',
-        bedrag: Math.round(Math.abs(bedragRuw) * 100) / 100, notitie
+        bedrag: Math.round(Math.abs(bedragRuw) * 100) / 100, notitie,
+        bankVolg: volgnr  // maakt de hash uniek (zie hashTr)
       });
       continue;
     }
