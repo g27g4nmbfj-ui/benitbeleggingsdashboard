@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   const round = (v, d = 1) => (v == null || isNaN(v)) ? null : Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
   const metric = {
     trailingPE: null, forwardPE: null, peg: null, pegGeschat: false,
-    roe: null, operatingMargin: null, price: null, beschikbaar: false
+    roe: null, operatingMargin: null, epsYoY: null, rotc: null, price: null, beschikbaar: false
   };
 
   const finnKey = process.env.FINNHUB_API_KEY || process.env.FINNHUB_KEY;
@@ -26,6 +26,11 @@ export default async function handler(req, res) {
       metric.roe        = m.roeTTM != null ? Math.round(m.roeTTM) : (m.roeAnnual != null ? Math.round(m.roeAnnual) : null);
       metric.operatingMargin = m.operatingMarginTTM != null ? Math.round(m.operatingMarginTTM)
                              : (m.operatingMarginAnnual != null ? Math.round(m.operatingMarginAnnual) : null);
+      // EPS-groei jaar-op-jaar (TTM) — komt overeen met Seeking Alpha's "EPS YoY"
+      metric.epsYoY = m.epsGrowthTTMYoy != null ? round(m.epsGrowthTTMYoy)
+                    : (m.epsGrowthQuarterlyYoy != null ? round(m.epsGrowthQuarterlyYoy) : null);
+      // Return on Total Capital ≈ Finnhub ROI (rendement op geïnvesteerd kapitaal)
+      metric.rotc = m.roiTTM != null ? Math.round(m.roiTTM) : (m.roiAnnual != null ? Math.round(m.roiAnnual) : null);
 
       // PEG: eerst Finnhub's eigen veld proberen (zelden gevuld)
       let peg = m.pegRatioTTM ?? m.pegRatio5Y ?? null;
