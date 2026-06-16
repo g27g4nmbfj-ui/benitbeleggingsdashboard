@@ -236,7 +236,7 @@
             <th class="sort" onclick="sW('trailingPE')">P/E (TTM) ↕</th>
             <th class="sort" onclick="sW('forwardPE')">Fwd P/E ↕</th>
             <th class="sort" onclick="sW('peg')">PEG ↕</th>
-            <th>ROE</th><th>Op.Mrg</th>
+            <th>ROE</th><th>Op.Mrg</th><th>ROTC</th><th>EPS YoY</th>
             <th>Status</th><th></th>
           </tr></thead>
           <tbody id="wtbody"></tbody>
@@ -1366,7 +1366,7 @@ function sP(k) {
 function rWatchlist() {
   const fv = (v, d = 1) => v != null ? v.toFixed(d) : '—';
   if (!watchData.length) {
-    document.getElementById('wtbody').innerHTML = '<tr><td colspan="8" class="lcel">Nog geen tickers — voeg er een toe hierboven</td></tr>';
+    document.getElementById('wtbody').innerHTML = '<tr><td colspan="10" class="lcel">Nog geen tickers — voeg er een toe hierboven</td></tr>';
     return;
   }
   document.getElementById('wtbody').innerHTML = watchData.map((w, i) => {
@@ -1378,6 +1378,8 @@ function rWatchlist() {
       <td>${kleurWaarde(w.peg, CRITERIA.peg, '', 2)}</td>
       <td>${kleurWaarde(w.roe, CRITERIA.roe, '%', 0)}</td>
       <td>${kleurWaarde(w.margin, CRITERIA.margin, '%', 0)}</td>
+      <td>${kleurWaarde(w.rotc, CRITERIA.rotc, '%', 0)}</td>
+      <td>${kleurWaarde(w.epsYoY, CRITERIA.epsYoY, '%', 0)}</td>
       <td>${sb}</td>
       <td><button class="btn-del" onclick="watchVerwijder(${i})" title="Verwijderen">✕</button></td>
     </tr>`;
@@ -1432,6 +1434,8 @@ async function refreshWatchlist() {
       if (m.peg != null) w.peg = m.peg;
       if (m.roe != null) w.roe = m.roe;
       if (m.operatingMargin != null) w.margin = m.operatingMargin;
+      if (m.rotc != null) w.rotc = m.rotc;
+      if (m.epsYoY != null) w.epsYoY = m.epsYoY;
     } catch (_) {}
     await new Promise(r => setTimeout(r, 200));
   }
