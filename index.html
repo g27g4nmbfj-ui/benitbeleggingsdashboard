@@ -1237,36 +1237,50 @@ async function refreshData() {
 }
 
 // Past je VERKOOPREGELS toe op een positie en geeft een stoplicht-signaal terug.
-// 🟢 Gezond · 🟡 Let op (1 zwak punt) · 🔴 Verkoop checken (groei weg of 2+ gebroken)
+// Onderscheidt WAARDERING (te duur = geel, geen paniek) van FUNDAMENTELE
+// verslechtering (groei krimpt / kwaliteit breekt = rood, écht checken).
 function verkoopSignaal(p) {
-  // Geen data nog
   const heeftData = p.forwardPE != null || p.peg != null || p.roe != null || p.margin != null || p.epsYoY != null;
   if (!heeftData) return { cls: 'bk', label: '— Laden', uitleg: 'Nog geen fundamentele data geladen.' };
 
-  // Tel welke koopcriteria gebroken zijn (alleen waar data beschikbaar is)
-  const gebroken = [];
-  if (p.forwardPE != null && p.forwardPE > CRITERIA.forwardPE.grens) gebroken.push('Fwd P/E ' + p.forwardPE + ' > ' + CRITERIA.forwardPE.grens);
-  if (p.peg != null && p.peg > CRITERIA.peg.grens) gebroken.push('PEG ' + p.peg + ' > ' + CRITERIA.peg.grens);
-  if (p.roe != null && p.roe < CRITERIA.roe.grens) gebroken.push('ROE ' + p.roe + '% < ' + CRITERIA.roe.grens + '%');
-  if (p.margin != null && p.margin < CRITERIA.margin.grens) gebroken.push('Marge ' + p.margin + '% < ' + CRITERIA.margin.grens + '%');
-  if (p.rotc != null && p.rotc < CRITERIA.rotc.grens) gebroken.push('ROTC ' + p.rotc + '% < ' + CRITERIA.rotc.grens + '%');
+  // ── Waarderingssignalen (TE DUUR) — geen verkoopreden op zich ──
+  const waardering = [];
+  if (p.forwardPE != null && p.forwardPE > CRITERIA.forwardPE.grens) waardering.push('Fwd P/E ' + p.forwardPE + ' > ' + CRITERIA.forwardPE.grens);
+  if (p.peg != null && p.peg > CRITERIA.peg.grens) waardering.push('PEG ' + p.peg + ' > ' + CRITERIA.peg.grens);
 
-  // Regel 1: groei structureel weg — EPS YoY negatief is het sterkste signaal
+  // ── Kwaliteitssignalen (BUSINESS VERSLECHTERT) — wél fundamenteel ──
+  const kwaliteit = [];
+  if (p.roe != null && p.roe < CRITERIA.roe.grens) kwaliteit.push('ROE ' + p.roe + '% < ' + CRITERIA.roe.grens + '%');
+  if (p.margin != null && p.margin < CRITERIA.margin.grens) kwaliteit.push('Marge ' + p.margin + '% < ' + CRITERIA.margin.grens + '%');
+  if (p.rotc != null && p.rotc < CRITERIA.rotc.grens) kwaliteit.push('ROTC ' + p.rotc + '% < ' + CRITERIA.rotc.grens + '%');
+
+  // ── Groei (het sterkste fundamentele signaal) ──
   const groeiWeg = p.epsYoY != null && p.epsYoY < 0;
 
-  // Beslis het niveau volgens je verkoopregels
-  if (groeiWeg || gebroken.length >= 2) {
-    // 🔴 Verkoop checken
+  // ── Beslis het niveau ──
+  // 🔴 ROOD alleen bij ECHTE verslechtering:
+  //    - groei krimpt (EPS YoY negatief), OF
+  //    - kwaliteit breekt op meerdere fronten (2+ van ROE/marge/ROTC)
+  if (groeiWeg || kwaliteit.length >= 2) {
     const redenen = [];
     if (groeiWeg) redenen.push('Regel 1 — groei krimpt (EPS YoY ' + p.epsYoY + '%)');
-    if (gebroken.length >= 2) redenen.push('Regel 2 — ' + gebroken.length + ' criteria gebroken: ' + gebroken.join(', '));
-    return { cls: 'br', label: '🔴 Verkoop checken', uitleg: redenen.join(' · ') + '. Leg deze positie langs je verkoopregels.' };
+    if (kwaliteit.length >= 2) redenen.push('Regel 2 — kwaliteit verslechtert: ' + kwaliteit.join(', '));
+    if (waardering.length) redenen.push('(ook duur: ' + waardering.join(', ') + ')');
+    return { cls: 'br', label: '🔴 Verkoop checken', uitleg: redenen.join(' · ') + '. Leg langs je verkoopregels.' };
   }
-  if (gebroken.length === 1) {
-    // 🟡 Let op — één zwak punt
-    return { cls: 'bo', label: '⚠ Let op', uitleg: 'Eén zwak punt: ' + gebroken[0] + '. Nog geen verkoopsignaal, wel volgen.' };
+
+  // 🟡 LET OP bij zwakke punten die GEEN noodsignaal zijn:
+  //    - te duur (waardering), of één enkel kwaliteitscriterium zwak
+  const zwak = [...waardering, ...kwaliteit];
+  if (zwak.length) {
+    const isAlleenDuur = kwaliteit.length === 0;
+    const kop = isAlleenDuur
+      ? 'Prijzig maar fundamenteel gezond — let op je instapprijs.'
+      : 'Eén zwak punt — volgen, nog geen verkoopsignaal.';
+    return { cls: 'bo', label: '⚠ Let op', uitleg: kop + ' (' + zwak.join(', ') + ')' };
   }
-  // 🟢 Gezond
+
+  // 🟢 GEZOND
   return { cls: 'bg', label: '✓ Gezond', uitleg: 'Voldoet aan al je criteria, groei intact. Vasthouden.' };
 }
 
