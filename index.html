@@ -1236,6 +1236,40 @@ async function refreshData() {
   document.getElementById('rtime').textContent = 'Geladen ' + new Date().toLocaleTimeString('nl-NL');
 }
 
+// Past je VERKOOPREGELS toe op een positie en geeft een stoplicht-signaal terug.
+// 🟢 Gezond · 🟡 Let op (1 zwak punt) · 🔴 Verkoop checken (groei weg of 2+ gebroken)
+function verkoopSignaal(p) {
+  // Geen data nog
+  const heeftData = p.forwardPE != null || p.peg != null || p.roe != null || p.margin != null || p.epsYoY != null;
+  if (!heeftData) return { cls: 'bk', label: '— Laden', uitleg: 'Nog geen fundamentele data geladen.' };
+
+  // Tel welke koopcriteria gebroken zijn (alleen waar data beschikbaar is)
+  const gebroken = [];
+  if (p.forwardPE != null && p.forwardPE > CRITERIA.forwardPE.grens) gebroken.push('Fwd P/E ' + p.forwardPE + ' > ' + CRITERIA.forwardPE.grens);
+  if (p.peg != null && p.peg > CRITERIA.peg.grens) gebroken.push('PEG ' + p.peg + ' > ' + CRITERIA.peg.grens);
+  if (p.roe != null && p.roe < CRITERIA.roe.grens) gebroken.push('ROE ' + p.roe + '% < ' + CRITERIA.roe.grens + '%');
+  if (p.margin != null && p.margin < CRITERIA.margin.grens) gebroken.push('Marge ' + p.margin + '% < ' + CRITERIA.margin.grens + '%');
+  if (p.rotc != null && p.rotc < CRITERIA.rotc.grens) gebroken.push('ROTC ' + p.rotc + '% < ' + CRITERIA.rotc.grens + '%');
+
+  // Regel 1: groei structureel weg — EPS YoY negatief is het sterkste signaal
+  const groeiWeg = p.epsYoY != null && p.epsYoY < 0;
+
+  // Beslis het niveau volgens je verkoopregels
+  if (groeiWeg || gebroken.length >= 2) {
+    // 🔴 Verkoop checken
+    const redenen = [];
+    if (groeiWeg) redenen.push('Regel 1 — groei krimpt (EPS YoY ' + p.epsYoY + '%)');
+    if (gebroken.length >= 2) redenen.push('Regel 2 — ' + gebroken.length + ' criteria gebroken: ' + gebroken.join(', '));
+    return { cls: 'br', label: '🔴 Verkoop checken', uitleg: redenen.join(' · ') + '. Leg deze positie langs je verkoopregels.' };
+  }
+  if (gebroken.length === 1) {
+    // 🟡 Let op — één zwak punt
+    return { cls: 'bo', label: '⚠ Let op', uitleg: 'Eén zwak punt: ' + gebroken[0] + '. Nog geen verkoopsignaal, wel volgen.' };
+  }
+  // 🟢 Gezond
+  return { cls: 'bg', label: '✓ Gezond', uitleg: 'Voldoet aan al je criteria, groei intact. Vasthouden.' };
+}
+
 function rPortfolio(data, totaalWaarde, ingelegd) {
   const res = Math.round((totaalWaarde - ingelegd) * 100) / 100;
   const pct = ingelegd ? Math.round(res / ingelegd * 10000) / 100 : 0;
@@ -1274,15 +1308,9 @@ function rPortfolio(data, totaalWaarde, ingelegd) {
     const rc = !p.koers ? 'color:var(--muted)' : p.res >= 0 ? 'color:var(--win);font-weight:600' : 'color:var(--rood)';
     const gew = totaalWaarde && p.waarde ? (p.waarde / totaalWaarde * 100).toFixed(1) + '%' : '—';
 
-    // Status automatisch uit de 4 criteria
-    const ok = p.forwardPE != null && p.forwardPE <= CRITERIA.forwardPE.grens
-            && p.peg != null && p.peg <= CRITERIA.peg.grens
-            && p.roe != null && p.roe >= CRITERIA.roe.grens
-            && p.margin != null && p.margin >= CRITERIA.margin.grens;
-    const deelsData = p.forwardPE != null || p.peg != null || p.roe != null || p.margin != null;
-    const status = ok ? '<span class="badge bg">✓ OK</span>'
-                 : deelsData ? '<span class="badge bo">⚠ Let op</span>'
-                 : '<span class="badge bk">— Laden</span>';
+    // ── Verkoopsignaal: past je VERKOOPREGELS toe (niet alleen koopcriteria) ──
+    const sig = verkoopSignaal(p);
+    const status = `<span class="badge ${sig.cls}" title="${sig.uitleg}">${sig.label}</span>`;
 
     // Actie klikbaar (wijzigbaar) — opgeslagen per ticker
     const act = actieVoor(p.ticker);
