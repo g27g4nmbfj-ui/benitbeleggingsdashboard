@@ -486,6 +486,28 @@ function laadWatchlist() {
 }
 function slaWatchlistOp() {
   try { localStorage.setItem('beleggen_watchlist_v2', JSON.stringify(watchData)); } catch (_) {}
+  // Ook naar de cloud (sync tussen apparaten)
+  if (kvOk) {
+    fetch('/api/kv', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'watchlist', value: watchData }) }).catch(() => {});
+  }
+}
+// Watchlist uit de cloud laden (aangeroepen bij opstart, na kv-check)
+async function laadWatchlistCloud() {
+  if (!kvOk) return;
+  try {
+    const r = await fetch('/api/kv?key=watchlist');
+    if (!r.ok) return;
+    const cloud = await r.json();
+    if (Array.isArray(cloud) && cloud.length) {
+      watchData = cloud;
+      try { localStorage.setItem('beleggen_watchlist_v2', JSON.stringify(watchData)); } catch (_) {}
+      rWatchlist();
+    } else if (watchData.length) {
+      // Cloud leeg maar lokaal gevuld → lokale lijst naar cloud tillen
+      slaWatchlistOp();
+    }
+  } catch (_) {}
 }
 
 // ═══ STATE ═════════════════════════════════════════════════════════════════
@@ -645,7 +667,10 @@ function wisFinviz() {
 // ═══ INIT ══════════════════════════════════════════════════════════════════
 async function init() {
   laadThema();
-  await laadTransacties();
+  await laadTransacties();       // zet kvOk
+  laadActies();                  // vul acties-cache uit localStorage
+  await laadWatchlistCloud();    // watchlist uit cloud (overschrijft lokaal indien gevuld)
+  await laadActiesCloud();       // acties uit cloud
   rWatchlist();
   laadGecachedeKoersen();
   refreshData();
@@ -1284,7 +1309,9 @@ function verkoopSignaal(p) {
   return { cls: 'bg', label: '✓ Gezond', uitleg: 'Voldoet aan al je criteria, groei intact. Vasthouden.' };
 }
 
+let laatsteIngelegd = 0;
 function rPortfolio(data, totaalWaarde, ingelegd) {
+  laatsteIngelegd = ingelegd || 0;
   const res = Math.round((totaalWaarde - ingelegd) * 100) / 100;
   const pct = ingelegd ? Math.round(res / ingelegd * 10000) / 100 : 0;
   document.getElementById('pw').textContent = '€' + Math.round(totaalWaarde).toLocaleString('nl-NL');
@@ -1366,9 +1393,41 @@ const ACTIE_OPTIES = [
   { sleutel: 'verkoop',label: '🔴 Verkopen', cls: 'br' },
   { sleutel: 'koop',   label: '🟢 Bijkopen', cls: 'bg' }
 ];
+// Acties-cache (in geheugen), gesynct met localStorage + cloud
+let actiesCache = null;
+function laadActies() {
+  if (actiesCache) return actiesCache;
+  try { actiesCache = JSON.parse(localStorage.getItem('beleggen_acties_v1') || '{}'); }
+  catch (_) { actiesCache = {}; }
+  return actiesCache;
+}
+function bewaarActies() {
+  try { localStorage.setItem('beleggen_acties_v1', JSON.stringify(actiesCache || {})); } catch (_) {}
+  if (kvOk) {
+    fetch('/api/kv', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'acties', value: actiesCache || {} }) }).catch(() => {});
+  }
+}
+async function laadActiesCloud() {
+  if (!kvOk) return;
+  try {
+    const r = await fetch('/api/kv?key=acties');
+    if (!r.ok) return;
+    const cloud = await r.json();
+    if (cloud && typeof cloud === 'object' && Object.keys(cloud).length) {
+      actiesCache = cloud;
+      try { localStorage.setItem('beleggen_acties_v1', JSON.stringify(actiesCache)); } catch (_) {}
+      if (portfolioData.length) {
+        const tw = portfolioData.reduce((s, p) => s + (p.waarde || 0), 0);
+        rPortfolio(portfolioData, tw, laatsteIngelegd || 0);
+      }
+    } else if (actiesCache && Object.keys(actiesCache).length) {
+      bewaarActies();
+    }
+  } catch (_) {}
+}
 function actieVoor(ticker) {
-  let opgeslagen = {};
-  try { opgeslagen = JSON.parse(localStorage.getItem('beleggen_acties_v1') || '{}'); } catch (_) {}
+  const opgeslagen = laadActies();
   let sleutel = opgeslagen[ticker];
   if (!sleutel) {
     // afleiden uit standaard ACTIE_MAP-tekst
@@ -1385,10 +1444,9 @@ function wijzigActie(ticker) {
   const huidig = actieVoor(ticker).sleutel;
   const idx = ACTIE_OPTIES.findIndex(o => o.sleutel === huidig);
   const volgende = ACTIE_OPTIES[(idx + 1) % ACTIE_OPTIES.length];
-  let opgeslagen = {};
-  try { opgeslagen = JSON.parse(localStorage.getItem('beleggen_acties_v1') || '{}'); } catch (_) {}
+  const opgeslagen = laadActies();
   opgeslagen[ticker] = volgende.sleutel;
-  localStorage.setItem('beleggen_acties_v1', JSON.stringify(opgeslagen));
+  bewaarActies();
   // alleen de tabel opnieuw renderen
   const tw = portfolioData.reduce((s, p) => s + (p.waarde || 0), 0);
   rPortfolio(portfolioData, tw, berekenIngelegd());
@@ -1405,6 +1463,32 @@ function sP(k) {
 }
 
 // ═══ WATCHLIST ═════════════════════════════════════════════════════════════
+// Handmatig cijfers invoeren voor een watchlist-aandeel (bv. als Finnhub ROTC/EPS YoY mist).
+function watchHandmatig(i) {
+  const w = watchData[i];
+  if (!w) return;
+  const vraag = (label, huidig) => {
+    const a = prompt(`${w.ticker} — ${label}\n(leeg laten = ongewijzigd)`, huidig != null ? huidig : '');
+    if (a === null) return undefined;            // geannuleerd
+    if (String(a).trim() === '') return huidig;  // leeg = ongewijzigd
+    const v = parseFloat(String(a).replace(',', '.'));
+    return isNaN(v) ? huidig : v;
+  };
+  const fwd = vraag('Forward P/E', w.forwardPE); if (fwd === undefined) return;
+  const peg = vraag('PEG', w.peg); if (peg === undefined) return;
+  const roe = vraag('ROE %', w.roe); if (roe === undefined) return;
+  const mrg = vraag('Operating Margin %', w.margin); if (mrg === undefined) return;
+  const rotc = vraag('ROTC %', w.rotc); if (rotc === undefined) return;
+  const eps = vraag('EPS YoY %', w.epsYoY); if (eps === undefined) return;
+  const pe = vraag('P/E (TTM)', w.trailingPE); if (pe === undefined) return;
+
+  w.forwardPE = fwd; w.peg = peg; w.roe = roe; w.margin = mrg;
+  w.rotc = rotc; w.epsYoY = eps; w.trailingPE = pe;
+  w.handmatig = true;
+  slaWatchlistOp();
+  rWatchlist();
+}
+
 function rWatchlist() {
   const fv = (v, d = 1) => v != null ? v.toFixed(d) : '—';
   if (!watchData.length) {
@@ -1414,7 +1498,7 @@ function rWatchlist() {
   document.getElementById('wtbody').innerHTML = watchData.map((w, i) => {
     const sb = w.status === 'koop' ? '<span class="badge bg">Volgende koop</span>' : '<span class="badge bk">Later</span>';
     return `<tr>
-      <td><div class="tkgr">${w.ticker}</div><div class="tkkl">${w.naam || ''}</div></td>
+      <td><div class="tkgr">${w.ticker}<span onclick="watchHandmatig(${i})" title="Cijfers handmatig invoeren/aanpassen" style="cursor:pointer;font-size:11px;margin-left:5px;opacity:0.5">✏️</span></div><div class="tkkl">${w.naam || ''}</div></td>
       <td><span class="n">${fv(w.trailingPE)}</span></td>
       <td>${kleurWaarde(w.forwardPE, CRITERIA.forwardPE)}</td>
       <td>${kleurWaarde(w.peg, CRITERIA.peg, '', 2)}</td>
@@ -1467,6 +1551,8 @@ function watchVerwijder(i) {
 async function refreshWatchlist() {
   await haalFxOp();
   for (const w of watchData) {
+    // Handmatig ingevoerde cijfers niet overschrijven met API-data
+    if (w.handmatig) continue;
     try {
       const fR = await fetch(`/api/fundamentals?symbol=${encodeURIComponent(w.ticker)}`);
       const f = await fR.json();
