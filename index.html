@@ -530,6 +530,25 @@ function laadFinviz() {
 }
 function slaFinvizOp() {
   try { localStorage.setItem('beleggen_finviz_v1', JSON.stringify(finvizData)); } catch (_) {}
+  if (kvOk) {
+    fetch('/api/kv', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'finviz', value: finvizData }) }).catch(() => {});
+  }
+}
+async function laadFinvizCloud() {
+  if (!kvOk) return;
+  try {
+    const r = await fetch('/api/kv?key=finviz');
+    if (!r.ok) return;
+    const cloud = await r.json();
+    if (cloud && typeof cloud === 'object' && Object.keys(cloud).length) {
+      finvizData = cloud;
+      try { localStorage.setItem('beleggen_finviz_v1', JSON.stringify(finvizData)); } catch (_) {}
+      refreshData();
+    } else if (finvizData && Object.keys(finvizData).length) {
+      slaFinvizOp();
+    }
+  } catch (_) {}
 }
 
 // Handmatig cijfers invoeren/aanpassen per aandeel (werkt voor EU én US).
@@ -669,8 +688,11 @@ async function init() {
   laadThema();
   await laadTransacties();       // zet kvOk
   laadActies();                  // vul acties-cache uit localStorage
+  laadNotities();                // vul notities-cache uit localStorage
   await laadWatchlistCloud();    // watchlist uit cloud (overschrijft lokaal indien gevuld)
   await laadActiesCloud();       // acties uit cloud
+  await laadNotitiesCloud();     // portfolio-notities uit cloud
+  await laadFinvizCloud();       // handmatige/Finviz-overlay uit cloud
   rWatchlist();
   laadGecachedeKoersen();
   refreshData();
@@ -1362,10 +1384,17 @@ function rPortfolio(data, totaalWaarde, ingelegd) {
       ? `<span title="cijfers ${ov.bron === 'handmatig' ? 'handmatig ingevoerd' : 'uit Finviz'}" style="font-size:9px;color:var(--teal);margin-left:4px;border:1px solid var(--teal);border-radius:3px;padding:0 2px">${ov.bron === 'handmatig' ? 'H' : 'F'}</span>`
       : '';
     const editBtn = `<span onclick="handmatigInvoeren('${p.ticker}')" title="Cijfers handmatig invoeren/aanpassen" style="cursor:pointer;font-size:11px;margin-left:5px;opacity:0.5">✏️</span>`;
+    const notitieTxt = notitieVoor(p.ticker);
+    const heeftNotitie = notitieTxt && notitieTxt.trim();
+    const notitieBtn = heeftNotitie
+      ? `<span onclick="wijzigNotitie('${p.ticker}')" title="${notitieTxt.replace(/"/g, '&quot;')}" style="cursor:pointer;font-size:12px;margin-left:5px">📝</span>`
+      : `<span onclick="wijzigNotitie('${p.ticker}')" title="Notitie toevoegen" style="cursor:pointer;font-size:11px;margin-left:5px;opacity:0.35">📝</span>`;
+    const notitieRegel = heeftNotitie
+      ? `<div class="tkkl" style="color:var(--teal);font-style:italic;margin-top:2px">${notitieTxt}</div>` : '';
     const peTTM = p.trailingPE != null ? `<span style="font-size:10px;color:var(--muted)">P/E ${p.trailingPE.toFixed(1)}</span>` : '';
 
     return `<tr>
-      <td><div class="tkgr">${p.ticker.replace('.AS','').replace('.L','')}${bronBadge}${editBtn}</div><div class="tkkl">${p.naam}</div></td>
+      <td><div class="tkgr">${p.ticker.replace('.AS','').replace('.L','')}${bronBadge}${editBtn}${notitieBtn}</div><div class="tkkl">${p.naam}</div>${notitieRegel}</td>
       <td style="color:var(--muted);font-size:11px">${gakStr}<div style="font-size:10px">${p.aantalPos} st</div></td>
       <td>${kStr}</td>
       <td>${wStr}</td>
@@ -1425,6 +1454,53 @@ async function laadActiesCloud() {
       bewaarActies();
     }
   } catch (_) {}
+}
+
+// Notities-cache voor PORTFOLIO-posities (in geheugen), gesynct met localStorage + cloud
+let notitiesCache = null;
+function laadNotities() {
+  if (notitiesCache) return notitiesCache;
+  try { notitiesCache = JSON.parse(localStorage.getItem('beleggen_notities_v1') || '{}'); }
+  catch (_) { notitiesCache = {}; }
+  return notitiesCache;
+}
+function bewaarNotities() {
+  try { localStorage.setItem('beleggen_notities_v1', JSON.stringify(notitiesCache || {})); } catch (_) {}
+  if (kvOk) {
+    fetch('/api/kv', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'notities', value: notitiesCache || {} }) }).catch(() => {});
+  }
+}
+async function laadNotitiesCloud() {
+  if (!kvOk) return;
+  try {
+    const r = await fetch('/api/kv?key=notities');
+    if (!r.ok) return;
+    const cloud = await r.json();
+    if (cloud && typeof cloud === 'object' && Object.keys(cloud).length) {
+      notitiesCache = cloud;
+      try { localStorage.setItem('beleggen_notities_v1', JSON.stringify(notitiesCache)); } catch (_) {}
+      if (portfolioData.length) {
+        const tw = portfolioData.reduce((s, p) => s + (p.waarde || 0), 0);
+        rPortfolio(portfolioData, tw, laatsteIngelegd || 0);
+      }
+    } else if (notitiesCache && Object.keys(notitiesCache).length) {
+      bewaarNotities();
+    }
+  } catch (_) {}
+}
+function notitieVoor(ticker) {
+  return (laadNotities())[ticker] || '';
+}
+function wijzigNotitie(ticker) {
+  const huidig = notitieVoor(ticker);
+  const nieuw = prompt(`${ticker} — notitie`, huidig);
+  if (nieuw === null) return; // geannuleerd
+  const opgeslagen = laadNotities();
+  opgeslagen[ticker] = nieuw.trim();
+  bewaarNotities();
+  const tw = portfolioData.reduce((s, p) => s + (p.waarde || 0), 0);
+  rPortfolio(portfolioData, tw, laatsteIngelegd || 0);
 }
 function actieVoor(ticker) {
   const opgeslagen = laadActies();
