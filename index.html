@@ -1543,26 +1543,36 @@ function sP(k) {
 function watchHandmatig(i) {
   const w = watchData[i];
   if (!w) return;
-  const vraag = (label, huidig) => {
-    const a = prompt(`${w.ticker} — ${label}\n(leeg laten = ongewijzigd)`, huidig != null ? huidig : '');
-    if (a === null) return undefined;            // geannuleerd
-    if (String(a).trim() === '') return huidig;  // leeg = ongewijzigd
-    const v = parseFloat(String(a).replace(',', '.'));
-    return isNaN(v) ? huidig : v;
+  let gewijzigd = false;
+  // Elk veld wordt DIRECT toegepast zodra ingevoerd — annuleren op een latere
+  // vraag stopt alleen de resterende vragen, en verwijdert niet wat al is ingevoerd.
+  const vraag = (label, key) => {
+    const huidig = w[key];
+    const a = prompt(`${w.ticker} — ${label}\n(leeg laten = ongewijzigd, Annuleren = stoppen)`, huidig != null ? huidig : '');
+    if (a === null) return false; // Annuleren → stop met vragen, bewaar wat er al is
+    const trimmed = String(a).trim();
+    if (trimmed !== '') {
+      const v = parseFloat(trimmed.replace(',', '.'));
+      if (!isNaN(v)) { w[key] = v; gewijzigd = true; }
+    }
+    return true; // ga door naar volgende vraag
   };
-  const fwd = vraag('Forward P/E', w.forwardPE); if (fwd === undefined) return;
-  const peg = vraag('PEG', w.peg); if (peg === undefined) return;
-  const roe = vraag('ROE %', w.roe); if (roe === undefined) return;
-  const mrg = vraag('Operating Margin %', w.margin); if (mrg === undefined) return;
-  const rotc = vraag('ROTC %', w.rotc); if (rotc === undefined) return;
-  const eps = vraag('EPS YoY %', w.epsYoY); if (eps === undefined) return;
-  const pe = vraag('P/E (TTM)', w.trailingPE); if (pe === undefined) return;
+  if (!vraag('Forward P/E', 'forwardPE')) { afronden(); return; }
+  if (!vraag('PEG', 'peg')) { afronden(); return; }
+  if (!vraag('ROE %', 'roe')) { afronden(); return; }
+  if (!vraag('Operating Margin %', 'margin')) { afronden(); return; }
+  if (!vraag('ROTC %', 'rotc')) { afronden(); return; }
+  if (!vraag('EPS YoY %', 'epsYoY')) { afronden(); return; }
+  if (!vraag('P/E (TTM)', 'trailingPE')) { afronden(); return; }
+  afronden();
 
-  w.forwardPE = fwd; w.peg = peg; w.roe = roe; w.margin = mrg;
-  w.rotc = rotc; w.epsYoY = eps; w.trailingPE = pe;
-  w.handmatig = true;
-  slaWatchlistOp();
-  rWatchlist();
+  function afronden() {
+    if (gewijzigd) {
+      w.handmatig = true;
+      slaWatchlistOp();
+      rWatchlist();
+    }
+  }
 }
 
 function rWatchlist() {
