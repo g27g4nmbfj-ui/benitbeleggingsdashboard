@@ -1496,9 +1496,20 @@ function rWatchlist() {
     return;
   }
   document.getElementById('wtbody').innerHTML = watchData.map((w, i) => {
-    const sb = w.status === 'koop' ? '<span class="badge bg">Volgende koop</span>' : '<span class="badge bk">Later</span>';
+    const sb = w.status === 'koop'
+      ? `<span class="badge bg" style="cursor:pointer" onclick="watchStatusToggle(${i})" title="Klik om te wijzigen">Volgende koop</span>`
+      : `<span class="badge bk" style="cursor:pointer" onclick="watchStatusToggle(${i})" title="Klik om te wijzigen">Later</span>`;
+    const heeftNotitie = w.notitie && w.notitie.trim();
+    const notitieIcoon = heeftNotitie
+      ? `<span onclick="watchNotitie(${i})" title="${w.notitie.replace(/"/g, '&quot;')}" style="cursor:pointer;font-size:12px;margin-left:5px">📝</span>`
+      : `<span onclick="watchNotitie(${i})" title="Notitie toevoegen" style="cursor:pointer;font-size:11px;margin-left:5px;opacity:0.35">📝</span>`;
+    const notitieRegel = heeftNotitie
+      ? `<div class="tkkl" style="color:var(--teal);font-style:italic;margin-top:2px">${w.notitie}</div>` : '';
     return `<tr>
-      <td><div class="tkgr">${w.ticker}<span onclick="watchHandmatig(${i})" title="Cijfers handmatig invoeren/aanpassen" style="cursor:pointer;font-size:11px;margin-left:5px;opacity:0.5">✏️</span></div><div class="tkkl">${w.naam || ''}</div></td>
+      <td>
+        <div class="tkgr">${w.ticker}<span onclick="watchHandmatig(${i})" title="Cijfers handmatig invoeren/aanpassen" style="cursor:pointer;font-size:11px;margin-left:5px;opacity:0.5">✏️</span>${notitieIcoon}</div>
+        <div class="tkkl">${w.naam || ''}</div>${notitieRegel}
+      </td>
       <td><span class="n">${fv(w.trailingPE)}</span></td>
       <td>${kleurWaarde(w.forwardPE, CRITERIA.forwardPE)}</td>
       <td>${kleurWaarde(w.peg, CRITERIA.peg, '', 2)}</td>
@@ -1510,6 +1521,26 @@ function rWatchlist() {
       <td><button class="btn-del" onclick="watchVerwijder(${i})" title="Verwijderen">✕</button></td>
     </tr>`;
   }).join('');
+}
+
+// Status wisselen tussen "Later" en "Volgende koop"
+function watchStatusToggle(i) {
+  const w = watchData[i];
+  if (!w) return;
+  w.status = w.status === 'koop' ? 'later' : 'koop';
+  slaWatchlistOp();
+  rWatchlist();
+}
+
+// Vrije notitie per watchlist-aandeel (bv. "wacht op dip onder $150" of "check AWS-marge")
+function watchNotitie(i) {
+  const w = watchData[i];
+  if (!w) return;
+  const nieuw = prompt(`${w.ticker} — notitie`, w.notitie || '');
+  if (nieuw === null) return; // geannuleerd
+  w.notitie = nieuw.trim();
+  slaWatchlistOp();
+  rWatchlist();
 }
 
 async function watchTickerToevoegen() {
