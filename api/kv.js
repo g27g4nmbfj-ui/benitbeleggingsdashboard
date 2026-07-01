@@ -12,7 +12,9 @@ const TOKEN = process.env.KV_REST_API_TOKEN;
 const KEYS = {
   transacties: 'benit_transacties',
   watchlist:   'benit_watchlist',
-  acties:      'benit_acties'
+  acties:      'benit_acties',
+  notities:    'benit_notities',
+  finviz:      'benit_finviz'
 };
 
 async function redisGet(redisKey) {
